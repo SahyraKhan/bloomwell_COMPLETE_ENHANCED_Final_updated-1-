@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header"><div class="sidebar-avatar">{{ current_user.full_name[0] if current_user.full_name else 'P' }}</div><div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div><div class="sidebar-role">🏃 Provider</div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('provider.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('provider.my_classes') }}" class="sidebar-link"><i class="fas fa-dumbbell"></i> My Classes</a>
+      <a href="{{ url_for('provider.edit_profile') }}" class="sidebar-link active"><i class="fas fa-store"></i> Studio Profile</a>
+      <div class="sidebar-divider"></div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </nav>
+  </div></aside>
+  <div class="dashboard-content">
+    <div style="margin-bottom:2rem;"><h1 style="font-size:1.75rem;font-family:var(--font-display);">Studio <em style="color:var(--rose);">Profile</em></h1></div>
+    <div class="card"><div class="card-body" style="padding:2rem;">
+      <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">Business Name</label>{{ form.business_name(class="form-control") }}{% for e in form.business_name.errors %}<li class="form-errors">{{ e }}</li>{% endfor %}</div>
+          <div class="form-group"><label class="form-label">Business Type</label>{{ form.business_type(class="form-control") }}</div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label>{{ form.description(class="form-control", rows=4) }}</div>
+        <div class="form-group"><label class="form-label">Address</label>{{ form.address(class="form-control") }}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">City</label>{{ form.city(class="form-control") }}</div>
+          <div class="form-group"><label class="form-label">Postcode</label>{{ form.postcode(class="form-control") }}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">Website</label>{{ form.website(class="form-control", placeholder="https://...") }}</div>
+          <div class="form-group"><label class="form-label">Instagram</label>{{ form.instagram(class="form-control", placeholder="@yourhandle") }}</div>
+        </div>
+        <div class="form-group"><label class="form-check">{{ form.is_women_only() }} Women-Only Space</label></div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">Logo</label>{{ form.logo_image(class="form-control") }}</div>
+          <div class="form-group"><label class="form-label">Banner Image</label>{{ form.banner_image(class="form-control") }}</div>
+        </div>
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;">{{ form.submit(class="btn btn-primary") }}<a href="{{ url_for('provider.dashboard') }}" class="btn btn-outline">Cancel</a></div>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header"><div class="sidebar-avatar" style="background:linear-gradient(135deg,#4a2d44,#2d1a30);font-size:1.25rem;">🛡️</div><div class="sidebar-name">Admin</div><div class="sidebar-role" style="color:var(--rose);">Administrator</div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('admin.providers') }}" class="sidebar-link"><i class="fas fa-store"></i> Providers</a>
+      <a href="{{ url_for('admin.users') }}" class="sidebar-link active"><i class="fas fa-users"></i> Users</a>
+      <a href="{{ url_for('admin.reports') }}" class="sidebar-link"><i class="fas fa-flag"></i> Reports</a>
+      <a href="{{ url_for('admin.reviews') }}" class="sidebar-link"><i class="fas fa-star"></i> Reviews</a>
+      <a href="{{ url_for('admin.analytics') }}" class="sidebar-link"><i class="fas fa-chart-bar"></i> Analytics</a>
+      <div class="sidebar-divider"></div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </nav>
+  </div></aside>
+  <div class="dashboard-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <h1 style="font-size:1.75rem;font-family:var(--font-display);">Manage <em style="color:var(--rose);">Users</em></h1>
+      <div style="display:flex;gap:0.5rem;">
+        <a href="{{ url_for('admin.users') }}" class="btn btn-sm {{ 'btn-primary' if not role_filter else 'btn-ghost' }}">All</a>
+        <a href="{{ url_for('admin.users', role='member') }}" class="btn btn-sm {{ 'btn-primary' if role_filter=='member' else 'btn-ghost' }}">Members</a>
+        <a href="{{ url_for('admin.users', role='provider') }}" class="btn btn-sm {{ 'btn-primary' if role_filter=='provider' else 'btn-ghost' }}">Providers</a>
+      </div>
+    </div>
+    {% if users.items %}
+    <div class="table-wrapper">
+      <table><thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Joined</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for u in users.items %}
+        <tr>
+          <td><strong>{{ u.full_name or u.username }}</strong><br><span style="font-size:0.8rem;color:var(--text-light);">@{{ u.username }}</span></td>
+          <td style="font-size:0.875rem;">{{ u.email }}</td>
+          <td><span class="status-badge status-{{ 'confirmed' if u.role=='member' else 'pending' if u.role=='provider' else 'attended' }}">{{ u.role.title() }}</span></td>
+          <td style="font-size:0.85rem;color:var(--text-light);">{{ u.created_at.strftime('%d %b %Y') }}</td>
+          <td><span class="status-badge {{ 'status-confirmed' if u.is_active else 'status-cancelled' }}">{{ 'Active' if u.is_active else 'Suspended' }}</span></td>
+          <td>{% if u.id != current_user.id %}<form method="POST" action="{{ url_for('admin.toggle_user', user_id=u.id) }}" onsubmit="return confirm('{{ 'Suspend' if u.is_active else 'Activate' }} this user?')"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sm {{ 'btn-danger' if u.is_active else 'btn-sage' }}">{{ 'Suspend' if u.is_active else 'Activate' }}</button></form>{% else %}<span style="color:var(--text-light);font-size:0.8rem;">You</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody></table>
+    </div>
+    {% else %}<div class="empty-state"><div class="empty-state-icon">👥</div><h3>No users found</h3></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

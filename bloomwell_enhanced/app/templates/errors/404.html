@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="text-align: center; padding: 6rem 1.5rem; background: linear-gradient(135deg, var(--rose-pale), #f5eef7);">
+    <div style="font-size: 5rem; margin-bottom: 1rem;">🌸</div>
+    <h1 style="font-size: 4rem; color: var(--plum); font-family: var(--font-display);">404</h1>
+    <h2 style="margin-bottom: 1rem; color: var(--text-dark);">Page Not Found</h2>
+    <p style="color: var(--text-light); margin-bottom: 2rem; max-width: 400px; margin-left: auto; margin-right: auto;">
+        This page seems to have wandered off on a wellness retreat. Let's get you back home.
+    </p>
+    <a href="{{ url_for('main.index') }}" class="btn btn-primary">Return to BloomWell</a>
+</div>
+{% endblock %}

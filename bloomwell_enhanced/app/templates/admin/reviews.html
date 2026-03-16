@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header"><div class="sidebar-avatar" style="background:linear-gradient(135deg,#4a2d44,#2d1a30);font-size:1.25rem;">🛡️</div><div class="sidebar-name">Admin</div><div class="sidebar-role" style="color:var(--rose);">Administrator</div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('admin.providers') }}" class="sidebar-link"><i class="fas fa-store"></i> Providers</a>
+      <a href="{{ url_for('admin.users') }}" class="sidebar-link"><i class="fas fa-users"></i> Users</a>
+      <a href="{{ url_for('admin.reports') }}" class="sidebar-link"><i class="fas fa-flag"></i> Reports</a>
+      <a href="{{ url_for('admin.reviews') }}" class="sidebar-link active"><i class="fas fa-star"></i> Reviews</a>
+      <a href="{{ url_for('admin.analytics') }}" class="sidebar-link"><i class="fas fa-chart-bar"></i> Analytics</a>
+      <div class="sidebar-divider"></div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </nav>
+  </div></aside>
+  <div class="dashboard-content">
+    <div style="margin-bottom:2rem;"><h1 style="font-size:1.75rem;font-family:var(--font-display);">Manage <em style="color:var(--rose);">Reviews</em></h1></div>
+    {% if reviews.items %}
+    <div class="table-wrapper">
+      <table><thead><tr><th>Review</th><th>Class</th><th>Rating</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
+      <tbody>
+        {% for r in reviews.items %}
+        <tr>
+          <td><strong>{{ r.user.full_name or r.user.username }}</strong><br><span style="font-size:0.8rem;color:var(--text-light);">{{ r.body[:55] }}{{ '...' if r.body|length>55 else '' }}</span></td>
+          <td style="font-size:0.875rem;">{{ r.fitness_class.title }}</td>
+          <td><span style="color:#f4c430;">{{ '★'*r.rating }}</span></td>
+          <td style="font-size:0.85rem;color:var(--text-light);">{{ r.created_at.strftime('%d %b %Y') }}</td>
+          <td>{% if r.is_flagged %}<span class="status-badge status-pending">Flagged</span>{% elif r.is_approved %}<span class="status-badge status-confirmed">Approved</span>{% else %}<span class="status-badge status-cancelled">Hidden</span>{% endif %}</td>
+          <td><form method="POST" action="{{ url_for('admin.toggle_review', review_id=r.id) }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-ghost btn-sm">{{ 'Hide' if r.is_approved else 'Approve' }}</button></form></td>
+        </tr>
+        {% endfor %}
+      </tbody></table>
+    </div>
+    {% else %}<div class="empty-state"><div class="empty-state-icon">⭐</div><h3>No reviews found</h3></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

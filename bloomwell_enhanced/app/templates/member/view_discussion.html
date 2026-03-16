@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:linear-gradient(135deg,var(--rose-pale),#ede0f0);padding:3rem 0 2rem;">
+  <div class="container">
+    <a href="{{ url_for('main.community') }}" style="color:var(--plum);font-size:0.9rem;text-decoration:none;"><i class="fas fa-arrow-left"></i> Back to Community</a>
+    <h1 style="font-family:var(--font-display);font-size:2rem;margin-top:0.75rem;">{{ discussion.title }}</h1>
+    <div style="display:flex;gap:1rem;flex-wrap:wrap;margin-top:0.5rem;">
+      <span style="background:var(--rose-pale);color:var(--plum);padding:0.2rem 0.75rem;border-radius:100px;font-size:0.8rem;font-weight:600;">{{ discussion.category.replace('_',' ').title() if discussion.category else 'General' }}</span>
+      <span style="font-size:0.85rem;color:var(--text-light);"><i class="fas fa-user"></i> {{ discussion.author.full_name or discussion.author.username }}</span>
+      <span style="font-size:0.85rem;color:var(--text-light);"><i class="fas fa-clock"></i> {{ discussion.created_at.strftime('%d %b %Y') }}</span>
+      <span style="font-size:0.85rem;color:var(--text-light);"><i class="fas fa-eye"></i> {{ discussion.view_count }} views</span>
+    </div>
+  </div>
+</div>
+<div style="background:var(--cream);padding:3rem 0;"><div class="container" style="max-width:760px;">
+  <div class="card mb-3"><div class="card-body" style="padding:2rem;">
+    <div style="display:flex;gap:1rem;">
+      <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--plum));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:1.1rem;flex-shrink:0;">{{ discussion.author.full_name[0] if discussion.author.full_name else '?' }}</div>
+      <p style="color:var(--text-mid);line-height:1.8;">{{ discussion.body }}</p>
+    </div>
+  </div></div>
+  <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">{{ replies|length }} Repl{{ 'y' if replies|length==1 else 'ies' }}</h3>
+  {% for reply in replies %}
+  <div class="card mb-2"><div class="card-body" style="padding:1.25rem;">
+    <div style="display:flex;gap:0.75rem;">
+      <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--sage),#5a7a6a);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;flex-shrink:0;">{{ reply.author.full_name[0] if reply.author.full_name else '?' }}</div>
+      <div style="flex:1;">
+        <div style="display:flex;gap:1rem;align-items:center;margin-bottom:0.4rem;">
+          <strong style="font-size:0.875rem;">{{ reply.author.full_name or reply.author.username }}</strong>
+          <span style="font-size:0.8rem;color:var(--text-light);">{{ reply.created_at.strftime('%d %b %Y') }}</span>
+        </div>
+        <p style="color:var(--text-mid);font-size:0.9rem;line-height:1.7;">{{ reply.body }}</p>
+      </div>
+    </div>
+  </div></div>
+  {% endfor %}
+  {% if current_user.is_authenticated %}
+  <div class="card mt-3"><div class="card-body" style="padding:2rem;">
+    <h4 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Post a Reply</h4>
+    <form method="POST">
+      {{ form.hidden_tag() }}
+      <div class="form-group">{{ form.body(class="form-control", placeholder="Share your thoughts...", rows=4) }}{% for e in form.body.errors %}<li class="form-errors">{{ e }}</li>{% endfor %}</div>
+      {{ form.submit(class="btn btn-primary") }}
+    </form>
+  </div></div>
+  {% else %}
+  <div class="card mt-3"><div class="card-body" style="text-align:center;padding:2rem;"><p style="color:var(--text-light);margin-bottom:1rem;">Sign in to join the conversation.</p><a href="{{ url_for('auth.login') }}" class="btn btn-primary">Sign In</a></div></div>
+  {% endif %}
+</div></div>
+{% endblock %}

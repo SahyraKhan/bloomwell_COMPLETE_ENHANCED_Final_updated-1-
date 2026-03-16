@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header"><div class="sidebar-avatar" style="background:linear-gradient(135deg,#4a2d44,#2d1a30);font-size:1.25rem;">🛡️</div><div class="sidebar-name">Admin</div><div class="sidebar-role" style="color:var(--rose);">Administrator</div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('admin.providers') }}" class="sidebar-link"><i class="fas fa-store"></i> Providers</a>
+      <a href="{{ url_for('admin.users') }}" class="sidebar-link"><i class="fas fa-users"></i> Users</a>
+      <a href="{{ url_for('admin.reports') }}" class="sidebar-link active"><i class="fas fa-flag"></i> Reports</a>
+      <a href="{{ url_for('admin.reviews') }}" class="sidebar-link"><i class="fas fa-star"></i> Reviews</a>
+      <a href="{{ url_for('admin.analytics') }}" class="sidebar-link"><i class="fas fa-chart-bar"></i> Analytics</a>
+      <div class="sidebar-divider"></div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </nav>
+  </div></aside>
+  <div class="dashboard-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <h1 style="font-size:1.75rem;font-family:var(--font-display);">Reports & <em style="color:var(--rose);">Moderation</em></h1>
+      <div style="display:flex;gap:0.5rem;">
+        <a href="?status=pending" class="btn btn-sm {{ 'btn-primary' if status_filter=='pending' else 'btn-ghost' }}">Pending</a>
+        <a href="?status=resolved" class="btn btn-sm {{ 'btn-primary' if status_filter=='resolved' else 'btn-ghost' }}">Resolved</a>
+        <a href="?status=all" class="btn btn-sm {{ 'btn-primary' if status_filter=='all' else 'btn-ghost' }}">All</a>
+      </div>
+    </div>
+    {% if reports.items %}
+    <div class="table-wrapper">
+      <table><thead><tr><th>Type</th><th>Reason</th><th>Reporter</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for r in reports.items %}
+        <tr>
+          <td><strong>{{ r.report_type.title() if r.report_type else '–' }}</strong></td>
+          <td>{{ r.reason.replace('_',' ').title() if r.reason else '–' }}<br>{% if r.description %}<span style="font-size:0.8rem;color:var(--text-light);">{{ r.description[:70] }}{{ '...' if r.description|length>70 else '' }}</span>{% endif %}</td>
+          <td>{{ r.reporter.username }}</td>
+          <td style="font-size:0.85rem;color:var(--text-light);">{{ r.created_at.strftime('%d %b %Y') }}</td>
+          <td><span class="status-badge status-{{ 'pending' if r.status=='pending' else 'confirmed' if r.status=='resolved' else 'cancelled' }}">{{ r.status.title() }}</span></td>
+          <td>{% if r.status=='pending' %}<div style="display:flex;gap:0.4rem;"><form method="POST" action="{{ url_for('admin.resolve_report', report_id=r.id, action='resolved') }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sage btn-sm">Resolve</button></form><form method="POST" action="{{ url_for('admin.resolve_report', report_id=r.id, action='dismissed') }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-ghost btn-sm">Dismiss</button></form></div>{% else %}<span style="color:var(--text-light);font-size:0.85rem;">{{ r.status.title() }}</span>{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody></table>
+    </div>
+    {% else %}<div class="empty-state"><div class="empty-state-icon">🚩</div><h3>No reports found</h3></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

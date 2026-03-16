@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="auth-page">
+    <div class="auth-card">
+        <div class="auth-header">
+            <a href="{{ url_for('main.index') }}" class="auth-logo">
+                <span class="logo-bloom">Bloom</span><span class="logo-well">Well</span>
+            </a>
+            <h1>Welcome Back</h1>
+            <p>Sign in to your wellness space</p>
+        </div>
+
+        <form method="POST" class="auth-form">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label class="form-label" for="email"><i class="fas fa-envelope"></i> Email Address</label>
+                {{ form.email(class="form-control", placeholder="your@email.com", id="email") }}
+                {% for error in form.email.errors %}
+                    <span class="form-errors"><li>{{ error }}</li></span>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password"><i class="fas fa-lock"></i> Password</label>
+                {{ form.password(class="form-control", placeholder="Your password", id="password") }}
+                {% for error in form.password.errors %}
+                    <span class="form-errors"><li>{{ error }}</li></span>
+                {% endfor %}
+            </div>
+
+            <div class="auth-options">
+                <label class="form-check">
+                    {{ form.remember_me() }} Keep me signed in
+                </label>
+                <a href="#" class="forgot-link">Forgot password?</a>
+            </div>
+
+            {{ form.submit(class="btn btn-primary", style="width: 100%; justify-content: center;") }}
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account? <a href="{{ url_for('auth.register') }}">Join BloomWell free</a></p>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.auth-page {
+    min-height: calc(100vh - 70px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.5rem;
+    background: linear-gradient(135deg, var(--rose-pale) 0%, #f5eef7 50%, #eef3fa 100%);
+}
+
+.auth-card {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 440px;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border);
+}
+
+.auth-header { text-align: center; margin-bottom: 2rem; }
+
+.auth-logo {
+    font-family: var(--font-display);
+    font-size: 1.75rem;
+    font-weight: 700;
+    display: block;
+    margin-bottom: 1rem;
+}
+
+.auth-header h1 { font-size: 1.5rem; color: var(--text-dark); margin-bottom: 0.4rem; }
+.auth-header p { color: var(--text-light); font-size: 0.95rem; }
+
+.auth-form { margin-bottom: 1.5rem; }
+
+.auth-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    font-size: 0.875rem;
+}
+
+.forgot-link { color: var(--rose); font-weight: 500; }
+.forgot-link:hover { color: var(--plum); }
+
+.auth-footer {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--border);
+    font-size: 0.9rem;
+    color: var(--text-mid);
+}
+
+.auth-footer a { color: var(--rose); font-weight: 600; }
+.auth-footer a:hover { color: var(--plum); }
+</style>
+{% endblock %}

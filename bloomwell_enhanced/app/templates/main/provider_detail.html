@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="background:linear-gradient(135deg,var(--rose-pale),#ede0f0);padding:3rem 0 2rem;">
+  <div class="container">
+    <a href="{{ url_for('main.explore') }}" style="color:var(--plum);font-size:0.9rem;text-decoration:none;"><i class="fas fa-arrow-left"></i> Back</a>
+    <div style="display:flex;align-items:center;gap:1.5rem;margin-top:1rem;flex-wrap:wrap;">
+      <div style="width:80px;height:80px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--plum));color:white;display:flex;align-items:center;justify-content:center;font-size:2rem;font-weight:700;font-family:var(--font-display);flex-shrink:0;">{{ provider.business_name[0] }}</div>
+      <div>
+        <h1 style="font-family:var(--font-display);font-size:2.25rem;margin-bottom:0.5rem;color:var(--text-dark);">{{ provider.business_name }}</h1>
+        <div style="display:flex;gap:0.5rem;flex-wrap:wrap;">
+          {% if provider.verified_badge %}<span style="background:white;color:var(--plum);padding:0.25rem 0.75rem;border-radius:100px;font-size:0.8rem;font-weight:600;border:1px solid var(--plum);"><i class="fas fa-check-circle"></i> Verified</span>{% endif %}
+          {% if provider.is_women_only %}<span style="background:var(--plum);color:white;padding:0.25rem 0.75rem;border-radius:100px;font-size:0.8rem;font-weight:600;">💜 Women Only</span>{% endif %}
+          {% if provider.city %}<span style="background:white;color:var(--text-mid);padding:0.25rem 0.75rem;border-radius:100px;font-size:0.8rem;border:1px solid var(--border);"><i class="fas fa-map-marker-alt"></i> {{ provider.city }}</span>{% endif %}
+          {% if provider.average_rating > 0 %}<span style="background:white;color:var(--text-mid);padding:0.25rem 0.75rem;border-radius:100px;font-size:0.8rem;border:1px solid var(--border);">⭐ {{ '%.1f'|format(provider.average_rating) }} ({{ provider.total_reviews }} reviews)</span>{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div style="background:var(--cream);padding:3rem 0;">
+  <div class="container">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:2rem;align-items:start;">
+      <div>
+        {% if provider.description %}
+        <div style="background:white;border-radius:var(--radius);padding:2rem;box-shadow:0 4px 20px rgba(0,0,0,0.08);margin-bottom:1.5rem;">
+          <h3 style="font-size:1rem;font-weight:700;margin-bottom:0.75rem;">About</h3>
+          <p style="color:var(--text-mid);line-height:1.8;">{{ provider.description }}</p>
+        </div>
+        {% endif %}
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Classes Offered ({{ classes|length }})</h3>
+        {% if classes %}
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-bottom:2rem;">
+          {% for cls in classes %}
+          <a href="{{ url_for('main.class_detail', class_id=cls.id) }}" style="text-decoration:none;">
+            <div style="background:white;border-radius:var(--radius);overflow:hidden;box-shadow:0 4px 16px rgba(0,0,0,0.07);transition:all 0.25s;" onmouseover="this.style.transform='translateY(-4px)';this.style.boxShadow='0 8px 24px rgba(201,111,126,0.15)'" onmouseout="this.style.transform='translateY(0)';this.style.boxShadow='0 4px 16px rgba(0,0,0,0.07)'">
+              <div style="height:100px;background:linear-gradient(135deg,var(--rose-pale),#ede0f0);display:flex;align-items:center;justify-content:center;font-size:2.5rem;">🌸</div>
+              <div style="padding:1rem;">
+                <h4 style="font-size:0.9rem;font-weight:600;color:var(--text-dark);margin-bottom:0.4rem;">{{ cls.title }}</h4>
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                  <span style="font-weight:700;color:{{ 'var(--sage)' if cls.is_free else 'var(--plum)' }};">{{ 'Free' if cls.is_free else '£'+'%.2f'|format(cls.price) }}</span>
+                  <span style="font-size:0.8rem;color:var(--text-light);">{{ cls.duration_minutes }}min</span>
+                </div>
+              </div>
+            </div>
+          </a>
+          {% endfor %}
+        </div>
+        {% else %}<p style="color:var(--text-light);">No classes listed yet.</p>{% endif %}
+        {% if reviews %}
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Reviews</h3>
+        {% for review in reviews %}
+        <div style="background:white;border-radius:var(--radius);padding:1.25rem;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin-bottom:0.75rem;">
+          <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.5rem;">
+            <div style="width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--plum));color:white;display:flex;align-items:center;justify-content:center;font-weight:700;">{{ review.user.full_name[0] if review.user.full_name else '?' }}</div>
+            <strong style="font-size:0.9rem;">{{ review.user.full_name or review.user.username }}</strong>
+            <div style="color:#f4c430;font-size:0.85rem;">{{ '★'*review.rating }}{{ '☆'*(5-review.rating) }}</div>
+            <span style="margin-left:auto;font-size:0.8rem;color:var(--text-light);">{{ review.created_at.strftime('%d %b %Y') }}</span>
+          </div>
+          <p style="font-size:0.875rem;color:var(--text-mid);">{{ review.body }}</p>
+        </div>
+        {% endfor %}
+        {% endif %}
+      </div>
+      <div style="position:sticky;top:90px;">
+        <div style="background:white;border-radius:var(--radius);padding:1.5rem;box-shadow:0 4px 20px rgba(0,0,0,0.08);">
+          <h4 style="font-weight:700;margin-bottom:1rem;color:var(--plum);">📍 Contact & Location</h4>
+          {% if provider.address %}
+          <div style="background:var(--cream);border-radius:var(--radius-sm);padding:0.75rem;margin-bottom:0.75rem;">
+            <p style="font-size:0.85rem;color:var(--text-mid);line-height:1.6;"><i class="fas fa-map-marker-alt" style="color:var(--rose);margin-right:0.4rem;"></i>{{ provider.address }}</p>
+          </div>
+          {% endif %}
+          {% if provider.phone %}
+          <a href="tel:{{ provider.phone }}" style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;color:var(--text-dark);margin-bottom:0.6rem;text-decoration:none;font-weight:600;">
+            <i class="fas fa-phone" style="color:var(--sage);width:16px;"></i>{{ provider.phone }}
+          </a>
+          {% endif %}
+          {% if provider.contact_email %}
+          <a href="mailto:{{ provider.contact_email }}" style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;color:var(--plum);margin-bottom:0.6rem;text-decoration:none;font-weight:600;">
+            <i class="fas fa-envelope" style="color:var(--rose);width:16px;"></i>{{ provider.contact_email }}
+          </a>
+          {% endif %}
+          {% if provider.website %}
+          <a href="{{ provider.website }}" style="display:flex;align-items:center;gap:0.5rem;font-size:0.875rem;color:var(--plum);margin-bottom:0.6rem;text-decoration:none;" target="_blank">
+            <i class="fas fa-globe" style="color:var(--plum);width:16px;"></i>Visit Website
+          </a>
+          {% endif %}
+          {% if provider.instagram %}
+          <p style="font-size:0.875rem;color:var(--text-mid);margin-bottom:0.6rem;"><i class="fab fa-instagram" style="color:var(--rose);width:16px;margin-right:0.5rem;"></i>@{{ provider.instagram }}</p>
+          {% endif %}
+          <div style="background:rgba(201,111,126,0.08);border-radius:var(--radius-sm);padding:0.75rem;margin:0.75rem 0;text-align:center;">
+            <p style="font-size:0.75rem;color:var(--text-light);margin-bottom:0.25rem;">Women-Only Safe Space</p>
+            <p style="font-size:0.8rem;font-weight:700;color:var(--rose);">💜 Verified Provider</p>
+          </div>
+          <hr style="border:none;border-top:1px solid var(--border);margin:1rem 0;">
+          <a href="{{ url_for('main.explore') }}" class="btn btn-outline" style="width:100%;justify-content:center;">Browse All Classes</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

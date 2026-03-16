@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header"><div class="sidebar-avatar">{{ current_user.full_name[0] if current_user.full_name else 'P' }}</div><div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div><div class="sidebar-role">🏃 Provider</div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('provider.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('provider.my_classes') }}" class="sidebar-link active"><i class="fas fa-dumbbell"></i> My Classes</a>
+      <div class="sidebar-divider"></div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </nav>
+  </div></aside>
+  <div class="dashboard-content">
+    <div style="margin-bottom:2rem;"><a href="{{ url_for('provider.my_classes') }}" style="color:var(--plum);font-size:0.9rem;text-decoration:none;"><i class="fas fa-arrow-left"></i> Back to Classes</a><h1 style="font-size:1.75rem;font-family:var(--font-display);margin-top:0.5rem;">Schedule: <em style="color:var(--rose);">{{ fitness_class.title }}</em></h1></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:2rem;">
+      <div class="card"><div class="card-body" style="padding:2rem;">
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1.5rem;">Add New Session</h3>
+        <form method="POST">
+          {{ form.hidden_tag() }}
+          <div class="form-group"><label class="form-label">Date</label>{{ form.date(class="form-control") }}{% for e in form.date.errors %}<li class="form-errors">{{ e }}</li>{% endfor %}</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+            <div class="form-group"><label class="form-label">Start Time</label>{{ form.start_time(class="form-control") }}</div>
+            <div class="form-group"><label class="form-label">End Time</label>{{ form.end_time(class="form-control") }}</div>
+          </div>
+          <div class="form-group"><label class="form-label">Available Spots</label>{{ form.available_spots(class="form-control") }}</div>
+          {{ form.submit(class="btn btn-primary") }}
+        </form>
+      </div></div>
+      <div>
+        <h3 style="font-size:1rem;font-weight:700;margin-bottom:1rem;">Sessions ({{ schedules|length }})</h3>
+        {% if schedules %}
+          {% for s in schedules %}
+          <div class="card mb-2"><div class="card-body" style="padding:1rem;">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+              <div><strong style="font-size:0.9rem;">{{ s.date.strftime('%A, %d %B %Y') }}</strong><div style="color:var(--text-light);font-size:0.85rem;">{{ s.start_time.strftime('%H:%M') }} – {{ s.end_time.strftime('%H:%M') }}</div></div>
+              <span class="status-badge {{ 'status-cancelled' if s.is_cancelled else 'status-confirmed' }}">{{ 'Cancelled' if s.is_cancelled else 'Active' }}</span>
+            </div>
+          </div></div>
+          {% endfor %}
+        {% else %}<div class="empty-state" style="padding:2rem;"><div class="empty-state-icon">📅</div><p>No sessions scheduled yet.</p></div>{% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

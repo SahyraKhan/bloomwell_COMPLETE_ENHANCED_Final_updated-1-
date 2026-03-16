@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:900px;margin:0 auto;padding:2.5rem 1.5rem 4rem">
+    <div style="margin-bottom:2.5rem;text-align:center">
+        <h1 style="font-family:var(--font-display);font-size:2.2rem;margin-bottom:.5rem">Safety &amp; <em style="color:var(--rose);font-style:italic">Inclusivity</em></h1>
+        <p style="color:var(--text-light);max-width:600px;margin:0 auto">BloomWell is built on trust. Every feature is designed to make women feel safe, respected, and empowered.</p>
+    </div>
+    {% set sections = [
+        ('shield-alt','var(--rose)','Women-Only Spaces','Every class on BloomWell is verified as a women-only environment. Providers must agree to our Women-Only Code of Conduct before being approved. Look for the ♀ Women-Only badge on every class listing.'),
+        ('check-circle','var(--sage)','Provider Verification','All providers undergo a manual approval process by our admin team. Verified badges (✓) are awarded to providers who have passed background checks, shared qualifications, and demonstrated a track record of safe practice.'),
+        ('globe','var(--plum)','Cultural Sensitivity','We proudly serve the diverse communities of Redditch, Bromsgrove and Worcester. Providers can indicate cultural sensitivity, language availability (Urdu, Arabic, Bengali, Hindi and more), and dietary/dress considerations for sessions.'),
+        ('wheelchair','#5c7a6b','Accessibility','Classes can display accessibility information — including step-free access, hearing loop availability, and visual aids. Use the ♿ Accessible filter in Explore to find suitable classes.'),
+        ('flag','var(--rose)','Reporting System','See something that concerns you? Every review, discussion, and provider listing has a Report button. Our moderation team reviews all reports within 24 hours. Your report is always confidential.'),
+        ('exclamation-triangle','#d97706','Zero-Tolerance Policy','BloomWell has zero tolerance for harassment, discrimination, or unsafe behaviour. Any provider or member found in breach of our community standards will be immediately suspended.'),
+        ('heart','var(--plum)','Privacy &amp; Wellbeing','Your personal data is never shared with providers without your consent. We follow UK GDPR guidelines. If you ever feel unsafe or distressed, our platform includes a link to relevant support resources.'),
+        ('users','var(--sage)','Moderated Community','Our discussion forums are moderated by trained community managers. All new posts are reviewed, member-only threads require a verified account, and hateful language is automatically flagged.'),
+    ] %}
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:1.25rem">
+        {% for icon, color, title, body in sections %}
+        <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;box-shadow:var(--shadow-sm);display:flex;gap:1.1rem">
+            <div style="width:46px;height:46px;border-radius:50%;background:{{ color }}1a;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem;color:{{ color }}">
+                <i class="fas fa-{{ icon }}"></i>
+            </div>
+            <div>
+                <h3 style="font-size:.95rem;font-weight:700;margin-bottom:.4rem">{{ title }}</h3>
+                <p style="font-size:.83rem;color:var(--text-mid);line-height:1.65">{{ body }}</p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    <div style="margin-top:2.5rem;background:linear-gradient(135deg,var(--plum),#3d2534);color:white;border-radius:var(--radius-lg);padding:2rem;text-align:center">
+        <h3 style="font-family:var(--font-display);font-size:1.3rem;margin-bottom:.6rem">Need help or want to report something?</h3>
+        <p style="opacity:.85;font-size:.875rem;margin-bottom:1.2rem">Our team is here to support you. You can submit a report from any class, review, or discussion page, or contact us directly.</p>
+        <a href="{{ url_for('main.about') }}" style="background:white;color:var(--plum);font-weight:700;padding:.65rem 1.75rem;border-radius:100px;text-decoration:none;font-size:.875rem">Contact Our Team</a>
+    </div>
+</div>
+{% endblock %}

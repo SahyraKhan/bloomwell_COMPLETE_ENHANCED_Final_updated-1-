@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-header">
+                <div class="sidebar-avatar">
+                    {% if current_user.profile_image and current_user.profile_image != 'default_avatar.png' %}
+                        <img src="{{ url_for('static', filename='images/' + current_user.profile_image) }}" alt="">
+                    {% else %}
+                        {{ current_user.full_name[0] if current_user.full_name else 'P' }}
+                    {% endif %}
+                </div>
+                <div class="sidebar-name">{{ profile.business_name if profile else current_user.full_name }}</div>
+                <div class="sidebar-role">🏃 Provider</div>
+                {% if profile and profile.is_approved %}
+                    <div style="margin-top: 0.5rem;"><span class="verified-badge"><i class="fas fa-check-circle"></i> Approved</span></div>
+                {% elif profile %}
+                    <div style="margin-top: 0.5rem;"><span class="status-badge status-pending">Pending Approval</span></div>
+                {% endif %}
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('provider.dashboard') }}" class="sidebar-link active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="{{ url_for('provider.my_classes') }}" class="sidebar-link"><i class="fas fa-dumbbell"></i> My Classes</a>
+                <a href="{{ url_for('provider.bookings') }}" class="sidebar-link"><i class="fas fa-calendar"></i> Bookings</a>
+                <a href="{{ url_for('provider.my_reviews') }}" class="sidebar-link"><i class="fas fa-star"></i> Reviews</a>
+                <div class="sidebar-divider"></div>
+                <a href="{{ url_for('provider.edit_profile') }}" class="sidebar-link"><i class="fas fa-store"></i> Studio Profile</a>
+                <a href="{{ url_for('provider.new_class') }}" class="sidebar-link"><i class="fas fa-plus-circle"></i> Add New Class</a>
+                <div class="sidebar-divider"></div>
+                <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+            </nav>
+        </div>
+    </aside>
+
+    <div class="dashboard-content">
+        <div class="dashboard-welcome">
+            <h1>Provider <em>Dashboard</em></h1>
+            <p>Manage your classes, bookings, and studio profile.</p>
+        </div>
+
+        {% if not profile or not profile.is_approved %}
+        <div class="alert alert-warning" style="margin-bottom: 2rem;">
+            <i class="fas fa-info-circle"></i>
+            {% if not profile %}
+                Please complete your <a href="{{ url_for('provider.edit_profile') }}">studio profile</a> to get started.
+            {% else %}
+                Your profile is pending admin approval. You'll be notified once approved and can start listing classes.
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card"><div class="stat-icon">🧘</div><div class="stat-number">{{ classes|length }}</div><div class="stat-label">Active Classes</div></div>
+            <div class="stat-card"><div class="stat-icon">📅</div><div class="stat-number">{{ total_bookings }}</div><div class="stat-label">Total Bookings</div></div>
+            <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-number">{{ '%.1f'|format(profile.average_rating) if profile and profile.average_rating else '–' }}</div><div class="stat-label">Avg Rating</div></div>
+            <div class="stat-card"><div class="stat-icon">💬</div><div class="stat-number">{{ profile.total_reviews if profile else 0 }}</div><div class="stat-label">Reviews</div></div>
+        </div>
+
+        <!-- Classes Overview -->
+        <div class="section-card mb-3">
+            <div class="section-card-header">
+                <h3><i class="fas fa-dumbbell text-rose"></i> Your Classes</h3>
+                <a href="{{ url_for('provider.new_class') }}" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Add Class</a>
+            </div>
+            {% if classes %}
+            <div class="table-wrapper" style="border: none; border-radius: 0; box-shadow: none;">
+                <table>
+                    <thead>
+                        <tr><th>Class</th><th>Type</th><th>Price</th><th>Bookings</th><th>Actions</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for cls in classes %}
+                        <tr>
+                            <td><strong>{{ cls.title }}</strong><br><small style="color: var(--text-light);">{{ cls.duration_minutes }} min · {{ cls.difficulty_level.replace('_',' ').title() }}</small></td>
+                            <td>{{ cls.activity_type.replace('_',' ').title() }}</td>
+                            <td>{{ 'Free' if cls.is_free else '£' + '%.2f'|format(cls.price) }}</td>
+                            <td>{{ cls.current_bookings }}/{{ cls.max_capacity }}</td>
+                            <td>
+                                <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                                    <a href="{{ url_for('provider.edit_class', class_id=cls.id) }}" class="btn btn-ghost btn-sm"><i class="fas fa-edit"></i></a>
+                                    <a href="{{ url_for('provider.manage_schedule', class_id=cls.id) }}" class="btn btn-ghost btn-sm"><i class="fas fa-calendar"></i></a>
+                                    <form method="POST" action="{{ url_for('provider.delete_class', class_id=cls.id) }}" onsubmit="return confirmAction('Remove this class?')">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <button class="btn btn-danger btn-sm" type="submit"><i class="fas fa-trash"></i></button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">🧘</div>
+                <h3>No classes yet</h3>
+                <p>Start by adding your first class or session.</p>
+                {% if profile and profile.is_approved %}
+                <a href="{{ url_for('provider.new_class') }}" class="btn btn-primary">Add Your First Class</a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Recent Bookings -->
+        <div class="section-card">
+            <div class="section-card-header">
+                <h3><i class="fas fa-calendar text-sage"></i> Recent Bookings</h3>
+                <a href="{{ url_for('provider.bookings') }}" class="btn btn-ghost btn-sm">All Bookings</a>
+            </div>
+            {% if recent_bookings %}
+            <div class="table-wrapper" style="border: none; border-radius: 0; box-shadow: none;">
+                <table>
+                    <thead>
+                        <tr><th>Member</th><th>Class</th><th>Code</th><th>Date</th><th>Status</th></tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in recent_bookings %}
+                        <tr>
+                            <td>{{ booking.user.full_name or booking.user.username }}</td>
+                            <td>{{ booking.fitness_class.title }}</td>
+                            <td><code style="font-size: 0.8rem;">{{ booking.confirmation_code }}</code></td>
+                            <td style="font-size: 0.85rem; color: var(--text-light);">{{ booking.booking_date.strftime('%d %b') }}</td>
+                            <td><span class="status-badge status-{{ booking.status }}">{{ booking.status.replace('_',' ').title() }}</span></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📅</div>
+                <h3>No bookings yet</h3>
+                <p>Bookings will appear here once members start reserving your classes.</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard-welcome { margin-bottom: 2rem; }
+.dashboard-welcome h1 { font-size: 1.75rem; color: var(--text-dark); }
+.dashboard-welcome h1 em { font-style: italic; color: var(--rose); }
+.dashboard-welcome p { color: var(--text-light); }
+.section-card { background: white; border-radius: var(--radius); border: 1px solid var(--border); box-shadow: var(--shadow-sm); overflow: hidden; margin-bottom: 1.5rem; }
+.section-card-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+.section-card-header h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+</style>
+{% endblock %}

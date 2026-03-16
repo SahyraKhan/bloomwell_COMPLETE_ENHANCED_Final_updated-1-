@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar"><div class="sidebar-card">
+        <div class="sidebar-header">
+            <div class="sidebar-avatar" style="background:linear-gradient(135deg,var(--plum),#3d2534)">{{ current_user.full_name[0] if current_user.full_name else 'P' }}</div>
+            <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+            <div class="sidebar-role">🏢 Provider</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('provider.dashboard') }}" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+            <a href="{{ url_for('provider.my_classes') }}" class="sidebar-link"><i class="fas fa-dumbbell"></i> My Classes</a>
+            <a href="{{ url_for('provider.bookings') }}" class="sidebar-link"><i class="fas fa-users"></i> Bookings</a>
+            <a href="{{ url_for('provider.my_reviews') }}" class="sidebar-link active"><i class="fas fa-star"></i> Reviews</a>
+            <a href="{{ url_for('chat.inbox') }}" class="sidebar-link"><i class="fas fa-comments"></i> Messages</a>
+        </nav>
+    </div></aside>
+    <div class="dashboard-content">
+        <h1 style="font-family:var(--font-display);font-size:1.75rem;margin-bottom:1.5rem">Member <em style="color:var(--rose)">Reviews</em></h1>
+        {% if reviews and reviews.items %}
+            {% for r in reviews.items %}
+            <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.3rem;margin-bottom:1rem;box-shadow:var(--shadow-sm)">
+                <div style="display:flex;align-items:flex-start;gap:.85rem;margin-bottom:.75rem">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--plum));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.85rem;flex-shrink:0">{{ (r.user.full_name or r.user.username)[0]|upper }}</div>
+                    <div style="flex:1">
+                        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+                            <strong style="font-size:.875rem">{{ r.user.full_name or r.user.username }}</strong>
+                            {% if r.is_verified_attendee %}<span style="background:rgba(82,183,136,.12);color:#2d8a60;font-size:.65rem;font-weight:800;padding:.1rem .4rem;border-radius:100px">✓ Verified Attendee</span>{% endif %}
+                        </div>
+                        <div style="display:flex;gap:2px;margin:.3rem 0">{% for i in range(5) %}<i class="fas fa-star" style="font-size:.75rem;color:{% if i < r.rating %}#f4c430{% else %}var(--border){% endif %}"></i>{% endfor %}</div>
+                        {% if r.title %}<strong style="font-size:.85rem;display:block;margin-bottom:.3rem">{{ r.title }}</strong>{% endif %}
+                        <p style="font-size:.83rem;color:var(--text-mid);line-height:1.6">{{ r.body }}</p>
+                        <span style="font-size:.72rem;color:var(--text-light)">{{ r.created_at.strftime('%d %b %Y') }} · {{ r.fitness_class.title }}</span>
+                    </div>
+                </div>
+                {% if r.provider_response %}
+                <div style="margin-left:2.85rem;background:var(--cream);border-left:3px solid var(--plum);padding:.65rem .9rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:.8rem;color:var(--text-mid)">
+                    <strong style="color:var(--plum)">Your Response:</strong> {{ r.provider_response }}
+                </div>
+                {% else %}
+                <div style="margin-left:2.85rem">
+                    <form method="POST" action="{{ url_for('provider.respond_review', review_id=r.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <div style="display:flex;gap:.5rem;align-items:center">
+                            <input type="text" name="response" class="form-control" placeholder="Write a public response to this review…" style="flex:1;font-size:.82rem;padding:.45rem .85rem">
+                            <button type="submit" style="background:var(--plum);color:white;border:none;border-radius:100px;padding:.45rem .95rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--font-body);white-space:nowrap">Post Response</button>
+                        </div>
+                    </form>
+                </div>
+                {% endif %}
+            </div>
+            {% endfor %}
+        {% else %}
+        <div style="text-align:center;padding:3rem;background:white;border-radius:var(--radius-lg);border:1px solid var(--border)">
+            <p style="font-size:2rem;margin-bottom:.5rem">⭐</p>
+            <p style="color:var(--text-light)">No reviews yet. Reviews appear here once members attend and rate your classes.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

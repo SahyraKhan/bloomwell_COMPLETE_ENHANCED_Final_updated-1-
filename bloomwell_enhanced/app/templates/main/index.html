@@ -1,0 +1,456 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-bg"></div>
+    <div class="container">
+        <div class="hero-grid">
+            <div class="hero-text">
+                <span class="hero-label">Women-Only Wellness Platform</span>
+                <h1 class="hero-title">Find Your <em>Safe Space</em> to Thrive</h1>
+                <p class="hero-subtitle">Discover verified women-only fitness classes, studios, and wellbeing activities near you. Book, connect, and grow in a community that understands you.</p>
+                <div class="hero-cta">
+                    <a href="{{ url_for('main.explore') }}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-search"></i> Explore Classes
+                    </a>
+                    <a href="{{ url_for('auth.register') }}" class="btn btn-outline btn-lg">
+                        Join Free Today
+                    </a>
+                </div>
+                <div class="hero-trust">
+                    <div class="trust-item"><i class="fas fa-shield-check"></i> Verified Providers</div>
+                    <div class="trust-item"><i class="fas fa-lock"></i> Women-Only Spaces</div>
+                    <div class="trust-item"><i class="fas fa-heart"></i> Community Reviews</div>
+                </div>
+            </div>
+            <div class="hero-visual">
+                <div class="hero-card-float">
+                    <div class="float-card float-card-1">
+                        <i class="fas fa-check-circle"></i>
+                        <span>Verified Women-Only</span>
+                    </div>
+                    <div class="float-card float-card-2">
+                        <i class="fas fa-star"></i>
+                        <span>4.9 Community Rating</span>
+                    </div>
+                    <div class="hero-circle">
+                        <div class="hero-circle-inner">
+                            <span class="hero-circle-icon">🌸</span>
+                            <p>Your wellness journey starts here</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Activity Types -->
+<section class="section" style="background: white;">
+    <div class="container">
+        <div class="section-header">
+            <h2>Explore <em>Activities</em></h2>
+            <p>From yoga to HIIT, walking groups to mental wellness – find what nourishes your body and mind.</p>
+        </div>
+        <div class="activities-grid">
+            {% set activities = [
+                ('yoga', 'Yoga', '🧘', '#8B7BA8'),
+                ('pilates', 'Pilates', '🤸', '#C4A9C4'),
+                ('strength', 'Strength', '💪', '#E8704A'),
+                ('mental_wellbeing', 'Wellbeing', '🧠', '#B8A9C9'),
+                ('meditation', 'Meditation', '☯️', '#9DBFB0'),
+                ('walking_group', 'Walking', '🚶', '#88C9A1'),
+                ('dance', 'Dance', '💃', '#F4C2C2'),
+                ('hiit', 'HIIT', '🔥', '#FF8A80')
+            ] %}
+            {% for slug, name, icon, color in activities %}
+            <a href="{{ url_for('main.explore') }}?activity_type={{ slug }}" class="activity-pill">
+                <span class="activity-pill-icon" style="background: {{ color }}20; color: {{ color }};">{{ icon }}</span>
+                <span>{{ name }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Featured Classes -->
+{% if featured_classes %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Featured <em>Classes</em></h2>
+            <p>Handpicked sessions from our verified provider community.</p>
+        </div>
+        <div class="grid-3">
+            {% for cls in featured_classes %}
+            <a href="{{ url_for('main.class_detail', class_id=cls.id) }}" class="card class-card">
+                <div class="class-card-img" style="position:relative;overflow:hidden;height:180px;background:linear-gradient(135deg,#e8d0d8,#c4a0b8)">
+                    {% if cls.cover_image_url %}
+                        <img src="{{ cls.cover_image_url }}" alt="{{ cls.title }}" style="width:100%;height:100%;object-fit:cover;object-position:center" loading="lazy" onerror="this.style.display='none'">
+                    {% else %}
+                        <div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:3rem">{{ get_activity_icon(cls.activity_type) if get_activity_icon is defined else '🌸' }}</div>
+                    {% endif %}
+                    <span class="class-card-badge" style="position:absolute;top:.6rem;left:.6rem;z-index:2">{{ cls.activity_type.replace('_', ' ').title() }}</span>
+                </div>
+                <div class="card-body">
+                    <h3 class="card-title">{{ cls.title }}</h3>
+                    <p class="card-subtitle">{{ cls.provider.business_name }}</p>
+                    <div class="class-meta">
+                        {% if cls.is_women_only %}<span class="women-only-badge">💜 Women Only</span>{% endif %}
+                        {% if cls.is_free %}<span class="free-badge">Free</span>{% endif %}
+                        {% if cls.provider.verified_badge %}<span class="verified-badge"><i class="fas fa-check-circle"></i> Verified</span>{% endif %}
+                    </div>
+                    <div class="flex-between mt-2">
+                        <span class="class-price {{ 'free' if cls.is_free }}">
+                            {{ 'Free' if cls.is_free else '£' + '%.2f'|format(cls.price) }}
+                        </span>
+                        <span class="meta-tag"><i class="fas fa-clock"></i> {{ cls.duration_minutes }} min</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-4">
+            <a href="{{ url_for('main.explore') }}" class="btn btn-outline">View All Classes <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- How It Works -->
+<section class="section how-it-works">
+    <div class="container">
+        <div class="section-header">
+            <h2>How <em>BloomWell</em> Works</h2>
+            <p>Three simple steps to a healthier, happier you.</p>
+        </div>
+        <div class="grid-3">
+            <div class="how-step">
+                <div class="how-step-num">01</div>
+                <div class="how-step-icon">🔍</div>
+                <h3>Search & Discover</h3>
+                <p>Browse hundreds of women-only classes, studios, and wellbeing sessions filtered by location, activity, and language.</p>
+            </div>
+            <div class="how-step">
+                <div class="how-step-num">02</div>
+                <div class="how-step-icon">📅</div>
+                <h3>Book Securely</h3>
+                <p>Reserve your spot in just a few clicks. All providers are verified for your safety and peace of mind.</p>
+            </div>
+            <div class="how-step">
+                <div class="how-step-num">03</div>
+                <div class="how-step-icon">🌸</div>
+                <h3>Thrive Together</h3>
+                <p>Join a supportive community, share reviews, and connect with women on the same wellbeing journey as you.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Verified Providers -->
+{% if verified_providers %}
+<section class="section" style="background: white;">
+    <div class="container">
+        <div class="section-header">
+            <h2>Trusted <em>Providers</em></h2>
+            <p>Our verified studios and trainers are committed to safe, inclusive, women-focused spaces.</p>
+        </div>
+        <div class="grid-4">
+            {% for provider in verified_providers %}
+            <a href="{{ url_for('main.provider_detail', provider_id=provider.id) }}" class="card provider-card">
+                <div class="provider-card-img">
+                    {% if provider.logo_image %}
+                        <img src="{{ url_for('static', filename='images/' + provider.logo_image) }}" alt="{{ provider.business_name }}">
+                    {% else %}
+                        <div class="provider-initials">{{ provider.business_name[0] }}</div>
+                    {% endif %}
+                </div>
+                <div class="card-body" style="padding: 1rem;">
+                    <h4 style="font-size: 0.95rem;">{{ provider.business_name }}</h4>
+                    <p class="text-light" style="font-size: 0.8rem;">{{ provider.city or 'Local Provider' }}</p>
+                    <div class="flex-gap mt-1">
+                        <span class="verified-badge"><i class="fas fa-check-circle"></i> Verified</span>
+                        {% if provider.is_women_only %}<span class="women-only-badge">💜 W/O</span>{% endif %}
+                    </div>
+                    {% if provider.average_rating > 0 %}
+                    <div class="mt-1 text-light" style="font-size: 0.8rem;">
+                        <span class="stars">{{ '★' * provider.average_rating|int }}</span>
+                        {{ '%.1f'|format(provider.average_rating) }} ({{ provider.total_reviews }})
+                    </div>
+                    {% endif %}
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- Community Teaser -->
+{% if recent_discussions %}
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <h2>Join the <em>Conversation</em></h2>
+            <p>A supportive space to share tips, stories, and encouragement.</p>
+        </div>
+        <div class="discussions-list">
+            {% for disc in recent_discussions %}
+            <a href="{{ url_for('member.view_discussion', discussion_id=disc.id) }}" class="discussion-card" style="display: flex; gap: 1rem; text-decoration: none; background: white; border-radius: 16px; padding: 1.25rem; border: 1px solid var(--border); margin-bottom: 0.75rem; transition: all 0.25s ease;">
+                <div class="discussion-avatar">{{ disc.author.full_name[0] if disc.author.full_name else '?' }}</div>
+                <div>
+                    <span class="category-pill">{{ disc.category.replace('_', ' ').title() }}</span>
+                    <h4 style="margin-top: 0.3rem; color: var(--text-dark); font-size: 0.95rem;">{{ disc.title }}</h4>
+                    <div class="discussion-meta">
+                        <span><i class="fas fa-user"></i> {{ disc.author.full_name or disc.author.username }}</span>
+                        <span><i class="fas fa-eye"></i> {{ disc.view_count }}</span>
+                        <span><i class="fas fa-comments"></i> {{ disc.replies.count() }}</span>
+                    </div>
+                </div>
+            </a>
+            {% endfor %}
+        </div>
+        <div class="text-center mt-3">
+            <a href="{{ url_for('main.community') }}" class="btn btn-outline">Visit Community <i class="fas fa-arrow-right"></i></a>
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<!-- CTA Banner -->
+<section class="cta-banner">
+    <div class="container">
+        <div class="cta-inner">
+            <div>
+                <h2>Ready to Start Your Wellness Journey?</h2>
+                <p>Join thousands of women finding safe, inclusive spaces to move and thrive.</p>
+            </div>
+            <div class="cta-buttons">
+                <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started Free</a>
+                <a href="{{ url_for('auth.register') }}?role=provider" class="btn" style="background: rgba(255,255,255,0.15); color: white; border: 1.5px solid rgba(255,255,255,0.4);">List Your Studio</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+/* HERO */
+.hero {
+    position: relative;
+    padding: 5rem 0 4rem;
+    overflow: hidden;
+    background: linear-gradient(135deg, #fdf6f8 0%, #f5eef7 50%, #eef3fa 100%);
+}
+
+.hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(circle at 80% 20%, rgba(201,111,126,0.08) 0%, transparent 50%),
+        radial-gradient(circle at 20% 80%, rgba(122,155,138,0.06) 0%, transparent 50%);
+    pointer-events: none;
+}
+
+.hero-grid {
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 3rem;
+    align-items: center;
+}
+
+.hero-label {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--rose);
+    background: var(--rose-pale);
+    padding: 0.35rem 1rem;
+    border-radius: 100px;
+    margin-bottom: 1.25rem;
+}
+
+.hero-title {
+    font-size: 3.25rem;
+    line-height: 1.2;
+    color: var(--text-dark);
+    margin-bottom: 1.25rem;
+}
+
+.hero-title em { font-style: italic; color: var(--rose); }
+
+.hero-subtitle {
+    font-size: 1.05rem;
+    color: var(--text-mid);
+    max-width: 500px;
+    line-height: 1.7;
+    margin-bottom: 2rem;
+}
+
+.hero-cta { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 2rem; }
+
+.hero-trust { display: flex; gap: 1.5rem; flex-wrap: wrap; }
+
+.trust-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: var(--text-mid);
+    font-weight: 500;
+}
+
+.trust-item i { color: var(--sage); }
+
+/* Hero Visual */
+.hero-circle {
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose-pale), #f0e0f0, #e8eef8);
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    margin: 0 auto;
+    border: 2px solid rgba(201,111,126,0.15);
+}
+
+.hero-circle-inner { text-align: center; }
+.hero-circle-icon { font-size: 4rem; display: block; margin-bottom: 0.75rem; }
+.hero-circle-inner p { font-style: italic; color: var(--plum); font-family: var(--font-display); font-size: 1rem; max-width: 160px; margin: 0 auto; }
+
+.hero-card-float { position: relative; }
+
+.float-card {
+    position: absolute;
+    background: white;
+    border-radius: 12px;
+    padding: 0.6rem 1rem;
+    box-shadow: var(--shadow-md);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    z-index: 2;
+    border: 1px solid var(--border);
+}
+
+.float-card i { color: var(--sage); }
+.float-card-1 { top: 20px; left: -20px; animation: float 3s ease-in-out infinite; }
+.float-card-2 { bottom: 30px; right: -20px; animation: float 3s ease-in-out infinite 1.5s; }
+
+@keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+}
+
+/* Activities Grid */
+.activities-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+}
+
+.activity-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    background: white;
+    border: 1.5px solid var(--border);
+    border-radius: 100px;
+    padding: 0.6rem 1.25rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: var(--text-dark);
+    transition: all 0.25s ease;
+}
+
+.activity-pill:hover { border-color: var(--rose); box-shadow: var(--shadow-sm); transform: translateY(-2px); color: var(--plum); }
+
+.activity-pill-icon {
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+}
+
+/* How It Works */
+.how-it-works { background: var(--cream); }
+
+.how-step {
+    text-align: center;
+    padding: 2rem;
+    background: white;
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--border);
+    position: relative;
+}
+
+.how-step-num {
+    position: absolute;
+    top: 1rem; right: 1.25rem;
+    font-size: 3rem;
+    font-weight: 700;
+    color: var(--rose-pale);
+    font-family: var(--font-display);
+    line-height: 1;
+}
+
+.how-step-icon { font-size: 2.5rem; margin-bottom: 1rem; }
+.how-step h3 { font-size: 1.2rem; margin-bottom: 0.75rem; color: var(--plum); }
+.how-step p { color: var(--text-mid); font-size: 0.925rem; line-height: 1.65; }
+
+/* Provider Card */
+.provider-card-img {
+    height: 100px;
+    background: var(--rose-pale);
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+}
+
+.provider-card-img img { width: 100%; height: 100%; object-fit: cover; }
+
+.provider-initials {
+    width: 60px; height: 60px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--rose), var(--plum));
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+}
+
+/* CTA Banner */
+.cta-banner {
+    background: linear-gradient(135deg, var(--plum), #4a2d44, var(--rose));
+    padding: 4rem 0;
+}
+
+.cta-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2rem;
+    flex-wrap: wrap;
+}
+
+.cta-inner h2 { font-family: var(--font-display); font-size: 2rem; color: white; margin-bottom: 0.5rem; }
+.cta-inner p { color: rgba(255,255,255,0.75); }
+.cta-buttons { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+@media (max-width: 768px) {
+    .hero-grid { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .hero-title { font-size: 2.25rem; }
+    .cta-inner { flex-direction: column; text-align: center; }
+}
+</style>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:1100px;margin:0 auto;padding:2rem 1.5rem 4rem">
+    <!-- Header -->
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:2rem;margin-bottom:2rem">
+        <div>
+            <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:.9rem">
+                {% if fitness_class.is_women_only %}<span style="background:rgba(201,111,126,.12);color:var(--rose);font-size:.72rem;font-weight:800;padding:.2rem .65rem;border-radius:100px;text-transform:uppercase">♀ Women Only</span>{% endif %}
+                {% if fitness_class.is_free %}<span style="background:rgba(122,155,138,.12);color:var(--sage);font-size:.72rem;font-weight:800;padding:.2rem .65rem;border-radius:100px;text-transform:uppercase">Free</span>{% endif %}
+                {% if fitness_class.provider.verified_badge %}<span style="background:rgba(82,183,136,.12);color:#2d8a60;font-size:.72rem;font-weight:800;padding:.2rem .65rem;border-radius:100px;text-transform:uppercase">✓ Verified Provider</span>{% endif %}
+                {% if fitness_class.accessibility_info %}<span style="background:rgba(76,123,201,.1);color:#3a68c4;font-size:.72rem;font-weight:800;padding:.2rem .65rem;border-radius:100px;text-transform:uppercase">♿ Accessible</span>{% endif %}
+            </div>
+            <h1 style="font-family:var(--font-display);font-size:2rem;margin-bottom:.6rem">{{ fitness_class.title }}</h1>
+            <p style="color:var(--text-mid);margin-bottom:1rem;line-height:1.7">{{ fitness_class.description }}</p>
+            <div style="display:flex;flex-wrap:wrap;gap:1.2rem;font-size:.85rem;color:var(--text-mid)">
+                <span><i class="fas fa-map-marker-alt" style="color:var(--rose)"></i> {{ fitness_class.city or 'TBC' }}{% if fitness_class.postcode %} · {{ fitness_class.postcode }}{% endif %}</span>
+                <span><i class="fas fa-clock" style="color:var(--plum)"></i> {{ fitness_class.duration_minutes }} min</span>
+                <span><i class="fas fa-signal" style="color:var(--sage)"></i> {{ fitness_class.difficulty_level.replace('_',' ').title() }}</span>
+                {% if fitness_class.language != 'English' %}<span><i class="fas fa-language" style="color:var(--plum)"></i> {{ fitness_class.language }}</span>{% endif %}
+            </div>
+            {% if fitness_class.accessibility_info %}
+            <div style="margin-top:1rem;background:rgba(76,123,201,.07);border-left:3px solid #5c7a6b;padding:.75rem 1rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:.84rem;color:var(--text-mid)">
+                <strong>♿ Accessibility:</strong> {{ fitness_class.accessibility_info }}
+            </div>
+            {% endif %}
+            <!-- Star rating summary -->
+            {% if reviews %}
+            <div style="margin-top:1.2rem;display:flex;align-items:center;gap:.75rem">
+                <div style="display:flex;gap:3px">{% for i in range(5) %}<i class="fas fa-star" style="font-size:.9rem;color:{% if i < avg_rating|round|int %}#f4c430{% else %}var(--border){% endif %}"></i>{% endfor %}</div>
+                <span style="font-weight:700;color:var(--text-dark)">{{ '%.1f'|format(avg_rating) }}</span>
+                <span style="color:var(--text-light);font-size:.85rem">{{ reviews|length }} review{{ 's' if reviews|length != 1 else '' }}</span>
+            </div>
+            {% endif %}
+        </div>
+        <!-- Booking Card -->
+        <div>
+            <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow-md);padding:1.5rem;position:sticky;top:90px">
+                <div style="text-align:center;margin-bottom:1.2rem">
+                    <div style="font-size:1.75rem;font-weight:800;color:{% if fitness_class.is_free %}var(--sage){% else %}var(--plum){% endif %}">
+                        {% if fitness_class.is_free %}Free{% else %}£{{ '%.2f'|format(fitness_class.price) }}{% endif %}
+                    </div>
+                    <div style="font-size:.8rem;color:var(--text-light);margin-top:.2rem">{{ fitness_class.max_capacity - fitness_class.current_bookings }} of {{ fitness_class.max_capacity }} spots available</div>
+                    <!-- Spots bar -->
+                    <div style="height:6px;background:var(--border);border-radius:100px;margin:.6rem 0;overflow:hidden">
+                        <div style="height:100%;width:{{ ((fitness_class.current_bookings / fitness_class.max_capacity)*100)|round|int }}%;background:linear-gradient(90deg,var(--sage),var(--rose));border-radius:100px"></div>
+                    </div>
+                </div>
+                {% if schedules %}
+                {% if current_user.is_authenticated and current_user.is_member() %}
+                <form method="POST" action="{{ url_for('member.book_class', class_id=fitness_class.id) }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <div style="margin-bottom:1rem">
+                        <label style="font-size:.78rem;font-weight:700;color:var(--text-mid);display:block;margin-bottom:.4rem">Select a Time Slot</label>
+                        {% for s in schedules %}
+                        <label style="display:flex;align-items:center;gap:.6rem;padding:.55rem .75rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:.4rem;cursor:pointer;font-size:.82rem;transition:var(--transition)" onmouseover="this.style.borderColor='var(--plum)'" onmouseout="this.style.borderColor='var(--border)'">
+                            <input type="radio" name="schedule_id" value="{{ s.id }}" {% if loop.first %}checked{% endif %} style="accent-color:var(--plum)">
+                            <span>{{ s.date.strftime('%a %d %b') }} · {{ s.start_time.strftime('%H:%M') }}–{{ s.end_time.strftime('%H:%M') }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    {% if fitness_class.current_bookings < fitness_class.max_capacity %}
+                    <button type="submit" style="width:100%;background:linear-gradient(135deg,var(--rose),var(--plum));color:white;border:none;border-radius:100px;padding:.75rem;font-size:.925rem;font-weight:700;cursor:pointer;font-family:var(--font-body)">
+                        <i class="fas fa-calendar-plus"></i> Book Now — Instant Confirmation
+                    </button>
+                    {% else %}
+                    <button disabled style="width:100%;background:var(--border);color:var(--text-light);border:none;border-radius:100px;padding:.75rem;font-size:.925rem;font-weight:700;font-family:var(--font-body)">Class Full</button>
+                    {% endif %}
+                </form>
+                {% else %}
+                <a href="{{ url_for('auth.login') }}" style="display:block;width:100%;background:linear-gradient(135deg,var(--rose),var(--plum));color:white;text-align:center;border-radius:100px;padding:.75rem;font-size:.925rem;font-weight:700;text-decoration:none">Sign In to Book</a>
+                {% endif %}
+                {% else %}
+                <div style="text-align:center;padding:.75rem;font-size:.85rem;color:var(--text-light)">No upcoming sessions scheduled yet.</div>
+                {% endif %}
+                <div style="margin-top:1rem;padding-top:1rem;border-top:1px solid var(--border);font-size:.78rem;color:var(--text-light);text-align:center">
+                    <i class="fas fa-bolt" style="color:var(--sage)"></i> Instant confirmation · No hidden fees
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Provider Info -->
+    <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.5rem;margin-bottom:1.75rem;display:flex;gap:1.2rem;align-items:center">
+        <div style="width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--plum));display:flex;align-items:center;justify-content:center;font-family:var(--font-display);font-size:1.3rem;font-weight:700;color:white;flex-shrink:0">{{ fitness_class.provider.business_name[0] }}</div>
+        <div style="flex:1">
+            <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+                <strong style="font-size:.95rem">{{ fitness_class.provider.business_name }}</strong>
+                {% if fitness_class.provider.verified_badge %}<span style="color:#2d8a60;font-size:.75rem;font-weight:700">✓ Verified</span>{% endif %}
+                {% if fitness_class.provider.is_women_only %}<span style="color:var(--rose);font-size:.75rem;font-weight:700">♀ Women Only</span>{% endif %}
+            </div>
+            <p style="font-size:.82rem;color:var(--text-mid);margin:.3rem 0">{{ fitness_class.provider.description[:180] if fitness_class.provider.description else '' }}…</p>
+            <a href="{{ url_for('main.provider_detail', provider_id=fitness_class.provider.id) }}" style="font-size:.8rem;color:var(--plum);font-weight:600">View Provider Profile →</a>
+                    {% if fitness_class.provider.phone or fitness_class.provider.contact_email %}
+                    <div style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:0.75rem;">
+                        {% if fitness_class.provider.phone %}
+                        <a href="tel:{{ fitness_class.provider.phone }}" style="display:inline-flex;align-items:center;gap:0.35rem;font-size:0.8rem;color:var(--sage);font-weight:600;text-decoration:none;padding:0.3rem 0.75rem;border:1.5px solid var(--sage);border-radius:100px;">
+                            <i class="fas fa-phone"></i> {{ fitness_class.provider.phone }}
+                        </a>
+                        {% endif %}
+                        {% if fitness_class.provider.contact_email %}
+                        <a href="mailto:{{ fitness_class.provider.contact_email }}" style="display:inline-flex;align-items:center;gap:0.35rem;font-size:0.8rem;color:var(--rose);font-weight:600;text-decoration:none;padding:0.3rem 0.75rem;border:1.5px solid var(--rose);border-radius:100px;">
+                            <i class="fas fa-envelope"></i> Email Us
+                        </a>
+                        {% endif %}
+                        {% if fitness_class.provider.address %}
+                        <span style="display:inline-flex;align-items:center;gap:0.35rem;font-size:0.78rem;color:var(--text-light);">
+                            <i class="fas fa-map-marker-alt" style="color:var(--rose)"></i> {{ fitness_class.provider.address }}
+                        </span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+        </div>
+        {% if current_user.is_authenticated %}
+        <a href="{{ url_for('chat.conversation', other_id=fitness_class.provider.user_id) }}" style="background:var(--rose-pale);color:var(--rose);border:1.5px solid var(--border);border-radius:100px;padding:.5rem 1rem;font-size:.8rem;font-weight:700;text-decoration:none;white-space:nowrap"><i class="fas fa-comments"></i> Message</a>
+        {% endif %}
+    </div>
+
+    <!-- Reviews Section -->
+    <div style="margin-bottom:2rem">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem">
+            <h2 style="font-family:var(--font-display);font-size:1.4rem">Reviews <span style="font-size:.9rem;color:var(--text-light);font-family:var(--font-body)">({{ reviews|length }})</span></h2>
+            {% if current_user.is_authenticated and current_user.is_member() %}
+            <a href="{{ url_for('member.leave_review', class_id=fitness_class.id) }}" style="background:linear-gradient(135deg,var(--rose),var(--plum));color:white;border-radius:100px;padding:.45rem 1.1rem;font-size:.8rem;font-weight:700;text-decoration:none">Write a Review</a>
+            {% endif %}
+        </div>
+        {% for r in reviews %}
+        <div style="background:white;border-radius:var(--radius);border:1px solid var(--border);padding:1.2rem;margin-bottom:.9rem">
+            <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem">
+                <div style="display:flex;gap:.75rem;align-items:flex-start">
+                    <div style="width:38px;height:38px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--plum));display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:.9rem;flex-shrink:0">{{ (r.user.full_name or r.user.username)[0]|upper }}</div>
+                    <div>
+                        <div style="display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+                            <strong style="font-size:.875rem">{{ r.user.full_name or r.user.username }}</strong>
+                            {% if r.is_verified_attendee %}<span style="background:rgba(82,183,136,.12);color:#2d8a60;font-size:.65rem;font-weight:800;padding:.1rem .4rem;border-radius:100px">✓ Verified Attendee</span>{% endif %}
+                        </div>
+                        <div style="display:flex;gap:2px;margin:.3rem 0">{% for i in range(5) %}<i class="fas fa-star" style="font-size:.75rem;color:{% if i < r.rating %}#f4c430{% else %}var(--border){% endif %}"></i>{% endfor %}</div>
+                        {% if r.title %}<strong style="font-size:.85rem;display:block;margin-bottom:.3rem">{{ r.title }}</strong>{% endif %}
+                        <p style="font-size:.83rem;color:var(--text-mid);line-height:1.6">{{ r.body }}</p>
+                        {% if r.provider_response %}
+                        <div style="margin-top:.75rem;background:var(--cream);border-left:3px solid var(--plum);padding:.65rem .9rem;border-radius:0 var(--radius-sm) var(--radius-sm) 0;font-size:.8rem;color:var(--text-mid)">
+                            <strong style="color:var(--plum)">Provider Response:</strong> {{ r.provider_response }}
+                        </div>
+                        {% endif %}
+                        <div style="margin-top:.5rem;display:flex;align-items:center;gap:.75rem">
+                            <span style="font-size:.72rem;color:var(--text-light)">{{ r.created_at.strftime('%d %b %Y') }}</span>
+                            {% if current_user.is_authenticated and current_user.is_member() %}
+                            <form method="POST" action="{{ url_for('member.submit_report') }}" style="display:inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <input type="hidden" name="report_type" value="review">
+                                <input type="hidden" name="target_id" value="{{ r.id }}">
+                                <input type="hidden" name="reason" value="inappropriate">
+                                <input type="hidden" name="description" value="Reported from review section">
+                                <button type="submit" style="font-size:.68rem;color:var(--text-light);background:none;border:none;cursor:pointer;font-family:var(--font-body)">🚩 Report</button>
+                            </form>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div style="text-align:center;padding:2rem;color:var(--text-light);background:white;border-radius:var(--radius-lg);border:1px solid var(--border)">
+            <i class="fas fa-star" style="font-size:1.75rem;color:var(--border);display:block;margin-bottom:.5rem"></i>
+            <p>No reviews yet. Be the first!</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

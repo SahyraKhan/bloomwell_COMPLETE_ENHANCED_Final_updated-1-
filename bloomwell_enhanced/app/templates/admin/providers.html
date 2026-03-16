@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header"><div class="sidebar-avatar" style="background:linear-gradient(135deg,#4a2d44,#2d1a30);font-size:1.25rem;">🛡️</div><div class="sidebar-name">Sahyra Khan</div><div class="sidebar-role" style="color:var(--rose);">Administrator</div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('admin.providers') }}" class="sidebar-link active"><i class="fas fa-store"></i> Providers</a>
+      <a href="{{ url_for('admin.users') }}" class="sidebar-link"><i class="fas fa-users"></i> Users</a>
+      <a href="{{ url_for('admin.reports') }}" class="sidebar-link"><i class="fas fa-flag"></i> Reports</a>
+      <a href="{{ url_for('admin.reviews') }}" class="sidebar-link"><i class="fas fa-star"></i> Reviews</a>
+      <a href="{{ url_for('admin.analytics') }}" class="sidebar-link"><i class="fas fa-chart-bar"></i> Analytics</a>
+      <div class="sidebar-divider"></div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </nav>
+  </div></aside>
+  <div class="dashboard-content">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;flex-wrap:wrap;gap:1rem;">
+      <h1 style="font-size:1.75rem;font-family:var(--font-display);">Manage <em style="color:var(--rose);">Providers</em></h1>
+      <div style="display:flex;gap:0.5rem;">
+        <a href="?status=all" class="btn btn-sm {{ 'btn-primary' if filter_status=='all' else 'btn-ghost' }}">All</a>
+        <a href="?status=pending" class="btn btn-sm {{ 'btn-primary' if filter_status=='pending' else 'btn-ghost' }}">Pending</a>
+        <a href="?status=approved" class="btn btn-sm {{ 'btn-primary' if filter_status=='approved' else 'btn-ghost' }}">Approved</a>
+      </div>
+    </div>
+    {% if providers.items %}
+    <div class="table-wrapper">
+      <table><thead><tr><th>Business</th><th>City</th><th>W/O</th><th>Status</th><th>Verified</th><th>Actions</th></tr></thead>
+      <tbody>
+        {% for p in providers.items %}
+        <tr>
+          <td><strong>{{ p.business_name }}</strong><br><span style="font-size:0.8rem;color:var(--text-light);">{{ p.user.email }}</span></td>
+          <td>{{ p.city or '–' }}</td>
+          <td>{% if p.is_women_only %}💜{% else %}–{% endif %}</td>
+          <td><span class="status-badge {{ 'status-confirmed' if p.is_approved else 'status-pending' }}">{{ 'Approved' if p.is_approved else 'Pending' }}</span></td>
+          <td>{% if p.verified_badge %}<span style="color:var(--plum);font-weight:600;"><i class="fas fa-check-circle"></i></span>{% else %}–{% endif %}</td>
+          <td>
+            <div style="display:flex;gap:0.4rem;flex-wrap:wrap;">
+              {% if not p.is_approved %}
+              <form method="POST" action="{{ url_for('admin.approve_provider', provider_id=p.id) }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sage btn-sm">✓ Approve</button></form>
+              <form method="POST" action="{{ url_for('admin.reject_provider', provider_id=p.id) }}" onsubmit="return confirm('Reject this provider?')" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-danger btn-sm">✗ Reject</button></form>
+              {% endif %}
+              {% if p.is_approved %}<form method="POST" action="{{ url_for('admin.verify_provider', provider_id=p.id) }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-ghost btn-sm">{{ 'Unverify' if p.verified_badge else 'Verify' }}</button></form>{% endif %}
+            </div>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody></table>
+    </div>
+    {% else %}<div class="empty-state"><div class="empty-state-icon">🏃</div><h3>No providers found</h3></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header"><div class="sidebar-avatar">{{ current_user.full_name[0] if current_user.full_name else 'P' }}</div><div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div><div class="sidebar-role">🏃 Provider</div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('provider.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('provider.my_classes') }}" class="sidebar-link active"><i class="fas fa-dumbbell"></i> My Classes</a>
+      <div class="sidebar-divider"></div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </nav>
+  </div></aside>
+  <div class="dashboard-content">
+    <div style="margin-bottom:2rem;"><h1 style="font-size:1.75rem;font-family:var(--font-display);">{{ 'Edit' if action=='edit' else 'Add New' }} <em style="color:var(--rose);">Class</em></h1></div>
+    <div class="card"><div class="card-body" style="padding:2rem;">
+      <form method="POST" enctype="multipart/form-data">
+        {{ form.hidden_tag() }}
+        <div style="display:grid;grid-template-columns:2fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">Class Title</label>{{ form.title(class="form-control") }}{% for e in form.title.errors %}<li class="form-errors">{{ e }}</li>{% endfor %}</div>
+          <div class="form-group"><label class="form-label">Activity Type</label>{{ form.activity_type(class="form-control") }}</div>
+        </div>
+        <div class="form-group"><label class="form-label">Description</label>{{ form.description(class="form-control", rows=4) }}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">Level</label>{{ form.difficulty_level(class="form-control") }}</div>
+          <div class="form-group"><label class="form-label">Duration (mins)</label>{{ form.duration_minutes(class="form-control") }}{% for e in form.duration_minutes.errors %}<li class="form-errors">{{ e }}</li>{% endfor %}</div>
+          <div class="form-group"><label class="form-label">Max Capacity</label>{{ form.max_capacity(class="form-control") }}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">Price (£)</label>{{ form.price(class="form-control") }}</div>
+          <div class="form-group"><label class="form-label">Language</label>{{ form.language(class="form-control") }}</div>
+        </div>
+        <div style="display:flex;gap:2rem;flex-wrap:wrap;margin-bottom:1rem;">
+          <label class="form-check">{{ form.is_free() }} Free Class</label>
+          <label class="form-check">{{ form.is_online() }} Online Class</label>
+          <label class="form-check">{{ form.is_women_only() }} Women-Only</label>
+        </div>
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">Location / Venue</label>{{ form.location(class="form-control") }}</div>
+          <div class="form-group"><label class="form-label">City</label>{{ form.city(class="form-control") }}</div>
+          <div class="form-group"><label class="form-label">Postcode</label>{{ form.postcode(class="form-control") }}</div>
+        </div>
+        <div class="form-group"><label class="form-label">Accessibility Info</label>{{ form.accessibility_info(class="form-control", rows=2) }}</div>
+        <div class="form-group"><label class="form-label">📸 Class Image (upload file)</label>{{ form.image(class="form-control") }}<div style="text-align:center;margin:.5rem 0;font-size:.8rem;color:var(--text-light)">— or —</div><label class="form-label">🔗 Paste Image URL (recommended — use Unsplash.com for free women-only fitness photos)</label>{{ form.cover_image_url(class="form-control", placeholder="https://images.unsplash.com/photo-...") }}<p style="font-size:.75rem;color:var(--text-light);margin-top:.3rem">💡 Tip: Go to <strong>unsplash.com</strong>, search your activity (e.g. "women yoga"), click a photo, copy the URL and paste it here.</p></div>
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;">{{ form.submit(class="btn btn-primary") }}<a href="{{ url_for('provider.my_classes') }}" class="btn btn-outline">Cancel</a></div>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}

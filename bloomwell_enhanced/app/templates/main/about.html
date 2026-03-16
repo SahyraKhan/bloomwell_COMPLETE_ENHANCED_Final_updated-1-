@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<style>
+.about-hero{background:linear-gradient(135deg,#f5e0e3,#ede0f0,#e0e8f5);padding:5rem 0 4rem;text-align:center}
+.about-hero h1{font-family:var(--font-display);font-size:3rem;margin-bottom:1rem}
+.about-hero h1 em{color:var(--rose);font-style:italic}
+.about-hero p{font-size:1.1rem;color:var(--text-mid);max-width:580px;margin:0 auto;line-height:1.75}
+.about-section{padding:4rem 0}
+.about-container{max-width:900px;margin:0 auto;padding:0 1.5rem}
+.about-card{background:white;border-radius:var(--radius-lg);padding:2.5rem;box-shadow:0 4px 24px rgba(0,0,0,.06);border:1px solid var(--border);margin-bottom:1.5rem}
+.about-card h2{font-family:var(--font-display);font-size:1.6rem;margin-bottom:1rem;color:var(--text-dark)}
+.about-card h2 em{color:var(--rose);font-style:italic}
+.about-card p{color:var(--text-mid);line-height:1.85;margin-bottom:0.85rem}
+.about-card p:last-child{margin-bottom:0}
+.values-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.25rem;margin-bottom:1.5rem}
+.value-card{background:white;border-radius:var(--radius);padding:1.75rem 1.25rem;box-shadow:0 4px 16px rgba(0,0,0,.05);text-align:center;border:1px solid var(--border);border-top:3px solid var(--rose)}
+.value-icon{font-size:2.5rem;margin-bottom:.75rem}
+.value-card h3{font-size:1rem;font-weight:700;margin-bottom:.5rem;color:var(--plum)}
+.value-card p{font-size:.875rem;color:var(--text-mid);line-height:1.6}
+.contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.contact-item{display:flex;align-items:flex-start;gap:1rem}
+.contact-icon{width:44px;height:44px;border-radius:50%;background:var(--rose-pale);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--rose);font-size:1.1rem}
+.contact-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);margin-bottom:.25rem}
+.contact-val{font-weight:600;color:var(--text-dark);font-size:.95rem}
+.contact-sub{font-size:.8rem;color:var(--text-light);margin-top:.1rem}
+.team-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;margin-top:1rem}
+.team-card{background:white;border-radius:var(--radius-lg);padding:1.75rem 1.25rem 1.5rem;text-align:center;border:1px solid var(--border);box-shadow:0 4px 16px rgba(0,0,0,.06);transition:transform .25s,box-shadow .25s}
+.team-card:hover{transform:translateY(-4px);box-shadow:0 12px 32px rgba(0,0,0,.12)}
+.team-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--rose),var(--plum));color:white;font-size:1.6rem;font-weight:700;display:flex;align-items:center;justify-content:center;margin:0 auto .9rem;font-family:var(--font-display)}
+.team-name{font-weight:700;font-size:.95rem;margin-bottom:.2rem;color:var(--text-dark)}
+.team-role{font-size:.78rem;color:var(--text-light);line-height:1.4}
+.academic-info{display:flex;gap:2.5rem;flex-wrap:wrap;margin-top:1.25rem;padding-top:1.25rem;border-top:1px solid var(--border)}
+.academic-field p:first-child{font-size:.72rem;color:var(--text-light);text-transform:uppercase;letter-spacing:1px;margin-bottom:.25rem;font-weight:700}
+.academic-field p:last-child{font-weight:700;color:var(--text-dark)}
+@media(max-width:700px){.values-grid,.contact-grid,.team-grid{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="about-hero">
+  <div class="container">
+    <h1>About <em>BloomWell</em></h1>
+    <p>Built by women, for women — a safe, inclusive platform connecting women with fitness and wellbeing communities across the West Midlands.</p>
+  </div>
+</div>
+
+<div class="about-section" style="background:var(--cream)">
+  <div class="about-container">
+
+    <!-- Mission -->
+    <div class="about-card">
+      <h2>Our <em>Mission</em> 💜</h2>
+      <p>BloomWell was created to bridge the gap women face when trying to access safe, inclusive, and reliable fitness and wellbeing opportunities. Many women struggle to find suitable activities due to limited information, safety concerns, and a lack of inclusivity in mixed-gender environments.</p>
+      <p>We believe every woman deserves access to a space where she can move, grow, and connect — free from judgement, built on trust, and tailored to her needs. From yoga to HIIT, walking groups to mindfulness workshops, BloomWell makes it easy to find, book and join women-only spaces near you.</p>
+    </div>
+
+    <!-- Values -->
+    <div class="values-grid">
+      <div class="value-card">
+        <div class="value-icon">🛡️</div>
+        <h3>Safety First</h3>
+        <p>All providers are verified by our admin team before listing. Women-only spaces are clearly marked and monitored.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🌍</div>
+        <h3>Inclusive Always</h3>
+        <p>Multilingual support, cultural sensitivity, and accessibility features built into every part of the platform.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🤝</div>
+        <h3>Community Driven</h3>
+        <p>A moderated forum where women share tips, stories, and encouragement in a safe, supportive environment.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">⭐</div>
+        <h3>Verified Reviews</h3>
+        <p>Only women who have attended classes can leave reviews, so you can trust every rating on our platform.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">📍</div>
+        <h3>Local Focus</h3>
+        <p>Rooted in Redditch, Bromsgrove and Worcester, with plans to expand across the West Midlands and beyond.</p>
+      </div>
+      <div class="value-card">
+        <div class="value-icon">🌱</div>
+        <h3>Holistic Wellness</h3>
+        <p>From physical fitness to mental health, nutrition to mindfulness — we support the whole woman.</p>
+      </div>
+    </div>
+
+    <!-- Contact & Address -->
+    <div class="about-card">
+      <h2>📍 Find <em>Us</em></h2>
+      <div class="contact-grid">
+        <div class="contact-item">
+          <div class="contact-icon"><i class="fas fa-map-marker-alt"></i></div>
+          <div>
+            <div class="contact-label">Head Office Address</div>
+            <div class="contact-val">BloomWell Platform</div>
+            <div class="contact-sub">Redditch, Worcestershire, B97 4AA</div>
+            <div class="contact-sub">West Midlands, United Kingdom</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon"><i class="fas fa-envelope"></i></div>
+          <div>
+            <div class="contact-label">Email Us</div>
+            <div class="contact-val">hello@bloomwell.co.uk</div>
+            <div class="contact-sub">We aim to respond within 24 hours</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon"><i class="fas fa-phone"></i></div>
+          <div>
+            <div class="contact-label">Phone</div>
+            <div class="contact-val">01527 000 000</div>
+            <div class="contact-sub">Mon–Fri, 9am–5pm</div>
+          </div>
+        </div>
+        <div class="contact-item">
+          <div class="contact-icon"><i class="fab fa-instagram"></i></div>
+          <div>
+            <div class="contact-label">Social Media</div>
+            <div class="contact-val">@bloomwelluk</div>
+            <div class="contact-sub">Instagram · Facebook · Twitter</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Team -->
+    <div class="about-card">
+      <h2>Meet the <em>Team</em></h2>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="team-avatar">S</div>
+          <div class="team-name">Sahyra Khan</div>
+          <div class="team-role">Founder &amp; Platform Developer</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">A</div>
+          <div class="team-name">Amara Khan</div>
+          <div class="team-role">Blossom Wellness — Redditch</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">L</div>
+          <div class="team-name">Lisa Thompson</div>
+          <div class="team-role">FemFit Bromsgrove</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">S</div>
+          <div class="team-name">Sophie Williams</div>
+          <div class="team-role">Serenity Mind &amp; Body — Worcester</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">N</div>
+          <div class="team-name">Nadia Patel</div>
+          <div class="team-role">ActiveWomen Birmingham</div>
+        </div>
+        <div class="team-card">
+          <div class="team-avatar">M</div>
+          <div class="team-name">Dr M. Shantanu Islam</div>
+          <div class="team-role">Academic Supervisor</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Academic Context -->
+    <div class="about-card">
+      <h2>Academic <em>Context</em></h2>
+      <p>BloomWell is developed as part of the <strong>ACCA6020 Independent Project</strong> module. The platform demonstrates how technology can be used to empower women through accessible, inclusive digital services. Development followed <strong>Agile methodology</strong> across five structured sprints, from requirements gathering and system design through to testing, deployment and evaluation.</p>
+      <div class="academic-info">
+        {% for label,val in [('Student','Sahyra Khan'),('Supervisor','Dr Md Shantanu Islam'),('Module','ACCA6020 Independent Project'),('Institution','University'),('Tech Stack','Flask · Python · SQLite · HTML/CSS'),('Methodology','Agile – 5 Sprints')] %}
+        <div class="academic-field">
+          <p>{{ label }}</p>
+          <p>{{ val }}</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

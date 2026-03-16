@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header"><div class="sidebar-avatar">{{ current_user.full_name[0] if current_user.full_name else 'P' }}</div><div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div><div class="sidebar-role">🏃 Provider</div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('provider.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('provider.my_classes') }}" class="sidebar-link"><i class="fas fa-dumbbell"></i> My Classes</a>
+      <a href="{{ url_for('provider.bookings') }}" class="sidebar-link active"><i class="fas fa-calendar"></i> Bookings</a>
+      <a href="{{ url_for('provider.my_reviews') }}" class="sidebar-link"><i class="fas fa-star"></i> Reviews</a>
+      <div class="sidebar-divider"></div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </nav>
+  </div></aside>
+  <div class="dashboard-content">
+    <div style="margin-bottom:2rem;"><h1 style="font-size:1.75rem;font-family:var(--font-display);">Participant <em style="color:var(--rose);">Bookings</em></h1></div>
+    {% if bookings.items %}
+    <div class="table-wrapper">
+      <table><thead><tr><th>Participant</th><th>Class</th><th>Code</th><th>Date</th><th>Status</th><th>Attendance</th></tr></thead>
+      <tbody>
+        {% for b in bookings.items %}
+        <tr>
+          <td><strong>{{ b.user.full_name or b.user.username }}</strong><br><span style="font-size:0.8rem;color:var(--text-light);">{{ b.user.email }}</span></td>
+          <td>{{ b.fitness_class.title }}</td>
+          <td><code style="font-size:0.8rem;">{{ b.confirmation_code }}</code></td>
+          <td style="font-size:0.85rem;color:var(--text-light);">{{ b.booking_date.strftime('%d %b %Y') }}</td>
+          <td><span class="status-badge status-{{ b.status }}">{{ b.status.replace('_',' ').title() }}</span></td>
+          <td>
+            {% if b.status == 'confirmed' %}
+            <div style="display:flex;gap:0.4rem;">
+              <form method="POST" action="{{ url_for('provider.mark_attendance', booking_id=b.id, status='attended') }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-sage btn-sm">✓ Attended</button></form>
+              <form method="POST" action="{{ url_for('provider.mark_attendance', booking_id=b.id, status='no_show') }}" style="display:inline;"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="btn btn-ghost btn-sm">No Show</button></form>
+            </div>
+            {% else %}<span style="color:var(--text-light);font-size:0.85rem;">–</span>{% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody></table>
+    </div>
+    {% else %}<div class="empty-state"><div class="empty-state-icon">📅</div><h3>No bookings yet</h3><p>Bookings will appear once members reserve your classes.</p></div>{% endif %}
+  </div>
+</div>
+{% endblock %}

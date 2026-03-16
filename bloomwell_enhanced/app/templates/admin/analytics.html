@@ -1,0 +1,241 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<style>
+.an-page{max-width:1200px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.an-hd{margin-bottom:2rem}
+.an-hd h1{font-family:var(--font-display);font-size:2rem}
+.an-hd h1 em{color:var(--rose);font-style:italic}
+.an-hd p{color:var(--text-light);margin-top:0.25rem}
+/* KPIs */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:1rem;margin-bottom:2rem}
+.kpi{background:white;border-radius:var(--radius);border:1px solid var(--border);padding:1.4rem 1rem;text-align:center;box-shadow:var(--shadow-sm);position:relative;overflow:hidden}
+.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--kpi-color,var(--plum))}
+.kpi-val{font-family:var(--font-display);font-size:2.2rem;font-weight:700;color:var(--plum);line-height:1}
+.kpi-lbl{font-size:0.7rem;color:var(--text-light);margin-top:0.4rem;font-weight:700;text-transform:uppercase;letter-spacing:0.06em}
+.kpi-icon{font-size:1.5rem;margin-bottom:0.4rem}
+/* Charts */
+.chart-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-bottom:1.5rem}
+.chart-card{background:white;border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:1.4rem}
+.chart-card h3{font-size:0.95rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:0.5rem}
+.chart-wrap{position:relative;height:240px}
+/* Tables */
+.data-table{background:white;border-radius:var(--radius-lg);border:1px solid var(--border);overflow:hidden;box-shadow:var(--shadow-sm);margin-bottom:1.5rem}
+.data-table-header{padding:1rem 1.4rem;border-bottom:1px solid var(--border);background:linear-gradient(135deg,var(--cream),white)}
+.data-table-header h3{font-size:0.95rem;font-weight:700;display:flex;align-items:center;gap:0.5rem}
+table.styled{width:100%;border-collapse:collapse}
+table.styled thead th{padding:0.65rem 1rem;text-align:left;font-size:0.7rem;text-transform:uppercase;color:var(--text-light);font-weight:700;background:var(--cream);border-bottom:1px solid var(--border)}
+table.styled tbody tr{border-bottom:1px solid var(--border);transition:background 0.15s}
+table.styled tbody tr:hover{background:var(--cream)}
+table.styled tbody td{padding:0.85rem 1rem;font-size:0.875rem}
+.rank-badge{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:50%;font-size:0.7rem;font-weight:800}
+.rank-1{background:linear-gradient(135deg,#c9a84c,#f4c430);color:white}
+.rank-2{background:linear-gradient(135deg,#888,#bbb);color:white}
+.rank-3{background:linear-gradient(135deg,#8B5E3C,#c4956a);color:white}
+.rank-n{background:var(--cream);color:var(--text-light)}
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.chart-grid{grid-template-columns:1fr}}
+@media(max-width:500px){.kpi-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header">
+      <div class="sidebar-avatar" style="background:linear-gradient(135deg,#4a2d44,#2d1a30)"><i class="fas fa-shield-check" style="font-size:1.3rem"></i></div>
+      <div class="sidebar-name">Sahyra Khan</div>
+      <div class="sidebar-role" style="color:var(--rose)">🛡️ Admin</div>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+      <a href="{{ url_for('admin.providers') }}" class="sidebar-link"><i class="fas fa-store"></i> Providers</a>
+      <a href="{{ url_for('admin.users') }}" class="sidebar-link"><i class="fas fa-users"></i> Users</a>
+      <a href="{{ url_for('admin.reports') }}" class="sidebar-link"><i class="fas fa-flag"></i> Reports</a>
+      <a href="{{ url_for('admin.discussions') }}" class="sidebar-link"><i class="fas fa-comments"></i> Discussions</a>
+      <a href="{{ url_for('admin.reviews') }}" class="sidebar-link"><i class="fas fa-star"></i> Reviews</a>
+      <a href="{{ url_for('admin.analytics') }}" class="sidebar-link active"><i class="fas fa-chart-bar"></i> Analytics</a>
+    </nav>
+  </div></aside>
+
+  <div class="dashboard-content">
+    <div class="an-hd">
+      <h1>Platform <em>Analytics</em></h1>
+      <p>Live insights and performance data — managed by <strong>Sahyra Khan</strong>, Platform Administrator</p>
+    </div>
+
+    <!-- Welcome Banner -->
+    <div style="background:linear-gradient(135deg,var(--plum),#4a2d44,var(--rose));border-radius:var(--radius-lg);padding:1.75rem 2rem;margin-bottom:2rem;color:white;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem">
+      <div>
+        <div style="font-size:0.78rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:0.8;margin-bottom:0.4rem">BloomWell Admin Panel</div>
+        <div style="font-family:var(--font-display);font-size:1.5rem;font-weight:700">Welcome back, Sahyra 👋</div>
+        <div style="font-size:0.9rem;opacity:0.85;margin-top:0.3rem">Here's what's happening on your platform today.</div>
+      </div>
+      <div style="display:flex;gap:2rem;flex-wrap:wrap">
+        <div style="text-align:center">
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700">{{ kpis.total_users }}</div>
+          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;opacity:0.8">Total Users</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700">{{ kpis.total_bookings }}</div>
+          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;opacity:0.8">Bookings</div>
+        </div>
+        <div style="text-align:center">
+          <div style="font-family:var(--font-display);font-size:2rem;font-weight:700">{{ kpis.avg_rating or '–' }}</div>
+          <div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:1px;opacity:0.8">Avg Rating</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KPI Cards -->
+    <div class="kpi-grid">
+      <div class="kpi" style="--kpi-color:var(--plum)"><div class="kpi-icon">👥</div><div class="kpi-val">{{ kpis.total_users }}</div><div class="kpi-lbl">Total Users</div></div>
+      <div class="kpi" style="--kpi-color:var(--rose)"><div class="kpi-icon">📅</div><div class="kpi-val">{{ kpis.total_bookings }}</div><div class="kpi-lbl">Bookings</div></div>
+      <div class="kpi" style="--kpi-color:var(--sage)"><div class="kpi-icon">🧘</div><div class="kpi-val">{{ kpis.total_classes }}</div><div class="kpi-lbl">Classes</div></div>
+      <div class="kpi" style="--kpi-color:#c9a84c"><div class="kpi-icon">🏃</div><div class="kpi-val">{{ kpis.total_providers }}</div><div class="kpi-lbl">Providers</div></div>
+      <div class="kpi" style="--kpi-color:var(--sage)"><div class="kpi-icon">⭐</div><div class="kpi-val" style="color:var(--sage)">{{ kpis.avg_rating }}</div><div class="kpi-lbl">Avg Rating</div></div>
+      <div class="kpi" style="--kpi-color:{% if kpis.open_reports > 0 %}orange{% else %}var(--sage){% endif %}"><div class="kpi-icon">🚩</div><div class="kpi-val" style="color:{% if kpis.open_reports > 0 %}orange{% else %}var(--sage){% endif %}">{{ kpis.open_reports }}</div><div class="kpi-lbl">Open Reports</div></div>
+    </div>
+
+    <!-- Charts Row 1 -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3><i class="fas fa-dumbbell" style="color:var(--rose)"></i> Classes by Activity Type</h3>
+        <div class="chart-wrap"><canvas id="activityChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-calendar-check" style="color:var(--sage)"></i> Bookings by Status</h3>
+        <div class="chart-wrap"><canvas id="bookingChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Charts Row 2 -->
+    <div class="chart-grid">
+      <div class="chart-card">
+        <h3><i class="fas fa-map-marker-alt" style="color:var(--rose)"></i> Classes by City</h3>
+        <div class="chart-wrap"><canvas id="cityChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3><i class="fas fa-user-plus" style="color:var(--plum)"></i> Member Signups (6 Months)</h3>
+        <div class="chart-wrap"><canvas id="signupChart"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Top Classes Table -->
+    {% if top_classes %}
+    <div class="data-table">
+      <div class="data-table-header"><h3><i class="fas fa-trophy" style="color:#c9a84c"></i> Top Classes by Bookings</h3></div>
+      <table class="styled">
+        <thead><tr><th>#</th><th>Class</th><th>Activity</th><th>Provider</th><th>City</th><th>Bookings</th><th>Capacity</th><th>Fill Rate</th></tr></thead>
+        <tbody>
+          {% for c in top_classes %}
+          <tr>
+            <td><span class="rank-badge rank-{{ loop.index if loop.index <= 3 else 'n' }}">{{ loop.index }}</span></td>
+            <td><strong>{{ c.title }}</strong></td>
+            <td><span style="font-size:0.75rem;background:var(--rose-pale);color:var(--rose);padding:0.1rem 0.5rem;border-radius:100px;font-weight:700">{{ c.activity_type.replace('_',' ').title() }}</span></td>
+            <td style="color:var(--text-mid)">{{ c.provider.business_name }}</td>
+            <td style="color:var(--text-light)">{{ c.city or '—' }}</td>
+            <td><strong style="color:var(--plum)">{{ c.current_bookings }}</strong></td>
+            <td style="color:var(--text-light)">{{ c.max_capacity }}</td>
+            <td>
+              {% set pct = ((c.current_bookings / c.max_capacity) * 100)|round|int if c.max_capacity > 0 else 0 %}
+              <div style="display:flex;align-items:center;gap:0.5rem">
+                <div style="flex:1;height:6px;background:var(--border);border-radius:100px;overflow:hidden"><div style="width:{{ pct }}%;height:100%;background:{% if pct > 80 %}var(--rose){% elif pct > 50 %}var(--sage){% else %}var(--plum){% endif %};border-radius:100px"></div></div>
+                <span style="font-size:0.75rem;font-weight:700;color:var(--text-mid);white-space:nowrap">{{ pct }}%</span>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <!-- Top Providers Table -->
+    {% if top_providers %}
+    <div class="data-table">
+      <div class="data-table-header"><h3><i class="fas fa-star" style="color:#c9a84c"></i> Top Providers by Rating</h3></div>
+      <table class="styled">
+        <thead><tr><th>#</th><th>Provider</th><th>City</th><th>Rating</th><th>Reviews</th><th>Women-Only</th></tr></thead>
+        <tbody>
+          {% for p in top_providers %}
+          <tr>
+            <td><span class="rank-badge rank-{{ loop.index if loop.index <= 3 else 'n' }}">{{ loop.index }}</span></td>
+            <td><strong>{{ p.business_name }}</strong></td>
+            <td style="color:var(--text-light)">{{ p.city or '—' }}</td>
+            <td>
+              <span style="font-weight:800;color:var(--sage)">{{ '%.1f'|format(p.average_rating) }}</span>
+              <span style="color:#f4c430;font-size:0.8rem"> ★★★★★</span>
+            </td>
+            <td style="color:var(--text-mid)">{{ p.total_reviews }}</td>
+            <td>{% if p.is_women_only %}<span style="color:var(--rose);font-size:0.75rem;font-weight:700">💜 Yes</span>{% else %}No{% endif %}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<script>
+Chart.defaults.font.family = "'DM Sans', sans-serif";
+Chart.defaults.plugins.legend.display = false;
+
+const ROSE='#c96f7e', PLUM='#7b4f6e', SAGE='#7a9b8a', GOLD='#c9a84c';
+const PALETTE=[ROSE,PLUM,SAGE,GOLD,'#a67d96','#88c9a1','#f4c2c2','#4a2d44','#e8704a'];
+
+// Activity Chart
+new Chart(document.getElementById('activityChart'), {
+  type: 'bar',
+  data: {
+    labels: [{% for a,c in activity_stats %}'{{ a.replace("_"," ")|title }}'{% if not loop.last %},{% endif %}{% endfor %}],
+    datasets:[{
+      data:[{% for a,c in activity_stats %}{{ c }}{% if not loop.last %},{% endif %}{% endfor %}],
+      backgroundColor: PALETTE,
+      borderRadius:8, borderSkipped:false
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' classes'}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}
+});
+
+// Booking Doughnut
+const bLabels=[{% for s,c in booking_stats %}'{{ s.replace("_"," ")|title }}'{% if not loop.last %},{% endif %}{% endfor %}];
+const bData=[{% for s,c in booking_stats %}{{ c }}{% if not loop.last %},{% endif %}{% endfor %}];
+new Chart(document.getElementById('bookingChart'),{
+  type:'doughnut',
+  data:{labels:bLabels,datasets:[{data:bData,backgroundColor:[SAGE,ROSE,'#aaa',PLUM,GOLD],borderWidth:2,borderColor:'white'}]},
+  options:{responsive:true,maintainAspectRatio:false,cutout:'65%',plugins:{legend:{display:true,position:'right',labels:{font:{size:11},boxWidth:12}}}}
+});
+
+// City Chart (horizontal)
+new Chart(document.getElementById('cityChart'),{
+  type:'bar',
+  data:{
+    labels:[{% for city,c in city_stats %}'{{ city or "Unknown" }}'{% if not loop.last %},{% endif %}{% endfor %}],
+    datasets:[{data:[{% for city,c in city_stats %}{{ c }}{% if not loop.last %},{% endif %}{% endfor %}],backgroundColor:[ROSE,PLUM,SAGE,GOLD],borderRadius:8,borderSkipped:false}]
+  },
+  options:{indexAxis:'y',responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' classes'}}},scales:{x:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}},y:{grid:{display:false}}}}
+});
+
+// Signup line chart
+{% if monthly_signups %}
+new Chart(document.getElementById('signupChart'),{
+  type:'line',
+  data:{
+    labels:[{% for m,c in monthly_signups %}'{{ m }}'{% if not loop.last %},{% endif %}{% endfor %}],
+    datasets:[{data:[{% for m,c in monthly_signups %}{{ c }}{% if not loop.last %},{% endif %}{% endfor %}],
+      borderColor:ROSE,backgroundColor:'rgba(201,111,126,0.1)',
+      fill:true,tension:0.4,pointBackgroundColor:ROSE,pointRadius:5,pointHoverRadius:7,borderWidth:2.5
+    }]
+  },
+  options:{responsive:true,maintainAspectRatio:false,plugins:{tooltip:{callbacks:{label:ctx=>' '+ctx.raw+' new members'}}},scales:{y:{beginAtZero:true,ticks:{stepSize:1},grid:{color:'rgba(0,0,0,0.04)'}},x:{grid:{display:false}}}}
+});
+{% else %}
+document.getElementById('signupChart').parentElement.innerHTML='<p style="color:var(--text-light);font-size:0.85rem;text-align:center;padding:2rem">Run seed_db.py to populate signup data.</p>';
+{% endif %}
+</script>
+{% endblock %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-header">
+                <div class="sidebar-avatar">{{ current_user.full_name[0] if current_user.full_name else 'M' }}</div>
+                <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+                <div class="sidebar-role">💜 Member</div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('member.dashboard') }}" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="{{ url_for('main.explore') }}" class="sidebar-link"><i class="fas fa-search"></i> Explore</a>
+                <a href="{{ url_for('member.my_bookings') }}" class="sidebar-link"><i class="fas fa-calendar-check"></i> My Bookings</a>
+                <a href="{{ url_for('chat.inbox') }}" class="sidebar-link"><i class="fas fa-comments"></i> Messages</a>
+                <a href="{{ url_for('member.notifications') }}" class="sidebar-link active"><i class="fas fa-bell"></i> Notifications</a>
+                <div class="sidebar-divider"></div>
+                <a href="{{ url_for('member.edit_profile') }}" class="sidebar-link"><i class="fas fa-user-edit"></i> Edit Profile</a>
+                <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose)"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+            </nav>
+        </div>
+    </aside>
+    <div class="dashboard-content">
+        <div style="margin-bottom:1.75rem;display:flex;align-items:center;justify-content:space-between;">
+            <div>
+                <h1 style="font-size:1.75rem;font-family:var(--font-display);">Notifications</h1>
+                <p style="color:var(--text-light);font-size:.875rem;">{{ total_count }} total · {{ unread_count }} unread</p>
+            </div>
+        </div>
+        <!-- Filter tabs -->
+        <div style="display:flex;gap:.4rem;border-bottom:2px solid var(--border);margin-bottom:1.5rem;">
+            <a href="?filter=all" style="padding:.55rem 1.1rem;border-radius:8px 8px 0 0;font-size:.875rem;font-weight:600;text-decoration:none;position:relative;top:2px;{% if active_filter=='all' %}color:var(--plum);border-bottom:2px solid var(--plum);background:var(--rose-pale){% else %}color:var(--text-light){% endif %}">All</a>
+            <a href="?filter=unread" style="padding:.55rem 1.1rem;border-radius:8px 8px 0 0;font-size:.875rem;font-weight:600;text-decoration:none;position:relative;top:2px;{% if active_filter=='unread' %}color:var(--plum);border-bottom:2px solid var(--plum);background:var(--rose-pale){% else %}color:var(--text-light){% endif %}">
+                Unread {% if unread_count > 0 %}<span style="background:var(--rose);color:white;font-size:.65rem;padding:.06rem .4rem;border-radius:100px;margin-left:.2rem;">{{ unread_count }}</span>{% endif %}
+            </a>
+        </div>
+
+        {% set type_icons = {'booking':'📅','reminder':'⏰','update':'📢','announcement':'🔔','system':'💬'} %}
+        {% if notifications.items %}
+            {% for notif in notifications.items %}
+            <div style="background:{% if not notif.is_read %}var(--rose-pale){% else %}white{% endif %};border:1.5px solid {% if not notif.is_read %}var(--rose-light){% else %}var(--border){% endif %};border-radius:var(--radius);padding:1.1rem 1.3rem;margin-bottom:.75rem;display:flex;gap:.9rem;align-items:flex-start;">
+                <div style="font-size:1.3rem;flex-shrink:0;margin-top:.1rem;">{{ type_icons.get(notif.notif_type, '🔔') }}</div>
+                <div style="flex:1;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;">
+                        <strong style="font-size:.875rem;">{{ notif.title }}</strong>
+                        {% if not notif.is_read %}<span style="width:8px;height:8px;background:var(--rose);border-radius:50%;flex-shrink:0;display:inline-block;"></span>{% endif %}
+                    </div>
+                    <p style="font-size:.84rem;color:var(--text-mid);margin-top:.25rem;">{{ notif.message }}</p>
+                    <div style="display:flex;align-items:center;gap:1rem;margin-top:.35rem;">
+                        <span style="font-size:.75rem;color:var(--text-light);">{{ notif.created_at.strftime('%d %b %Y · %H:%M') }}</span>
+                        {% if notif.link %}<a href="{{ notif.link }}" style="font-size:.75rem;color:var(--rose);font-weight:600;">View →</a>{% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% if notifications.pages > 1 %}
+            <div style="display:flex;justify-content:center;gap:.5rem;margin-top:1.5rem;">
+                {% for p in notifications.iter_pages() %}
+                    {% if p %}<a href="?filter={{ active_filter }}&page={{ p }}" style="padding:.4rem .75rem;border-radius:var(--radius-sm);border:1.5px solid {% if p==notifications.page %}var(--plum){% else %}var(--border){% endif %};background:{% if p==notifications.page %}var(--plum){% else %}white{% endif %};color:{% if p==notifications.page %}white{% else %}var(--text-mid){% endif %};font-size:.85rem;font-weight:600;text-decoration:none;">{{ p }}</a>
+                    {% else %}<span style="padding:.4rem;">…</span>{% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+        {% else %}
+        <div style="text-align:center;padding:3rem;background:white;border-radius:var(--radius-lg);border:1px solid var(--border);">
+            <div style="font-size:2.5rem;margin-bottom:.6rem;">🔔</div>
+            <h3 style="font-family:var(--font-display);">All caught up!</h3>
+            <p style="color:var(--text-light);font-size:.875rem;">No notifications here yet.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+    <aside class="sidebar"><div class="sidebar-card">
+        <div class="sidebar-header">
+            <div class="sidebar-avatar" style="background:linear-gradient(135deg,#4a2d44,#2d1a30)"><i class="fas fa-shield-check" style="font-size:1.3rem"></i></div>
+            <div class="sidebar-name">Sahyra Khan</div>
+            <div class="sidebar-role" style="color:var(--rose)">🛡️ Admin</div>
+        </div>
+        <nav class="sidebar-nav">
+            <a href="{{ url_for('admin.dashboard') }}" class="sidebar-link"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+            <a href="{{ url_for('admin.providers') }}" class="sidebar-link"><i class="fas fa-store"></i> Providers</a>
+            <a href="{{ url_for('admin.users') }}" class="sidebar-link"><i class="fas fa-users"></i> Users</a>
+            <a href="{{ url_for('admin.reports') }}" class="sidebar-link"><i class="fas fa-flag"></i> Reports</a>
+            <a href="{{ url_for('admin.discussions') }}" class="sidebar-link active"><i class="fas fa-comments"></i> Discussions</a>
+            <a href="{{ url_for('admin.reviews') }}" class="sidebar-link"><i class="fas fa-star"></i> Reviews</a>
+            <a href="{{ url_for('admin.analytics') }}" class="sidebar-link"><i class="fas fa-chart-bar"></i> Analytics</a>
+        </nav>
+    </div></aside>
+    <div class="dashboard-content">
+        <h1 style="font-family:var(--font-display);font-size:1.75rem;margin-bottom:1.5rem">Moderate <em style="color:var(--rose)">Discussions</em></h1>
+        <div style="overflow-x:auto;background:white;border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm)">
+            <table style="width:100%;border-collapse:collapse;min-width:600px">
+                <thead style="background:var(--cream)">
+                    <tr>
+                        <th style="padding:.8rem 1rem;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);font-weight:700;border-bottom:1px solid var(--border)">Title</th>
+                        <th style="padding:.8rem 1rem;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);font-weight:700;border-bottom:1px solid var(--border)">Author</th>
+                        <th style="padding:.8rem 1rem;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);font-weight:700;border-bottom:1px solid var(--border)">Category</th>
+                        <th style="padding:.8rem 1rem;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);font-weight:700;border-bottom:1px solid var(--border)">Status</th>
+                        <th style="padding:.8rem 1rem;text-align:left;font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--text-light);font-weight:700;border-bottom:1px solid var(--border)">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for d in discussions.items %}
+                <tr style="border-bottom:1px solid var(--border)">
+                    <td style="padding:.9rem 1rem;font-size:.875rem;max-width:260px">
+                        <span style="{% if not d.is_active %}text-decoration:line-through;opacity:.5{% endif %}">{{ d.title }}</span>
+                        {% if d.is_pinned %}<span style="color:var(--sage);font-size:.7rem;margin-left:.4rem">📌</span>{% endif %}
+                        {% if d.is_members_only %}<span style="color:var(--plum);font-size:.7rem;margin-left:.3rem">🔒</span>{% endif %}
+                    </td>
+                    <td style="padding:.9rem 1rem;font-size:.85rem;color:var(--text-mid)">{{ d.author.full_name or d.author.username }}</td>
+                    <td style="padding:.9rem 1rem"><span style="background:var(--rose-pale);color:var(--rose);font-size:.68rem;font-weight:700;padding:.12rem .5rem;border-radius:100px;text-transform:uppercase">{{ d.category }}</span></td>
+                    <td style="padding:.9rem 1rem"><span style="font-size:.75rem;font-weight:700;color:{% if d.is_active %}var(--sage){% else %}var(--rose){% endif %}">{{ 'Active' if d.is_active else 'Hidden' }}</span></td>
+                    <td style="padding:.9rem 1rem">
+                        <div style="display:flex;gap:.4rem;flex-wrap:wrap">
+                            <form method="POST" action="{{ url_for('admin.toggle_discussion', discussion_id=d.id) }}" style="display:inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" style="font-size:.72rem;padding:.25rem .6rem;border-radius:100px;border:1.5px solid var(--border);background:white;cursor:pointer;font-family:var(--font-body);color:{% if d.is_active %}var(--rose){% else %}var(--sage){% endif %}">
+                                    {{ 'Hide' if d.is_active else 'Restore' }}
+                                </button>
+                            </form>
+                            <form method="POST" action="{{ url_for('admin.pin_discussion', discussion_id=d.id) }}" style="display:inline">
+                                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                <button type="submit" style="font-size:.72rem;padding:.25rem .6rem;border-radius:100px;border:1.5px solid var(--border);background:white;cursor:pointer;font-family:var(--font-body);color:var(--text-mid)">
+                                    {{ '📌 Unpin' if d.is_pinned else '📌 Pin' }}
+                                </button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}

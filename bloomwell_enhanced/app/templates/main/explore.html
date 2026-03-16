@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+{% block extra_css %}
+<style>
+.explore-page{max-width:1400px;margin:0 auto;padding:2rem 1.5rem 4rem}
+.explore-hd{margin-bottom:1.5rem}
+.explore-hd h1{font-family:var(--font-display);font-size:2.1rem;margin-bottom:.25rem}
+.explore-hd h1 em{color:var(--rose);font-style:italic}
+.explore-hd p{color:var(--text-light);font-size:.95rem}
+
+/* Filter panel */
+.filter-panel{background:white;border-radius:var(--radius-lg);border:1px solid var(--border);box-shadow:var(--shadow-sm);padding:1.4rem 1.6rem;margin-bottom:1.5rem}
+.filter-top{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr auto;gap:.85rem;align-items:end;margin-bottom:1rem}
+.filter-bottom{display:flex;flex-wrap:wrap;gap:.5rem;padding-top:.9rem;border-top:1px solid var(--border);align-items:center}
+.filter-label{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--text-light);margin-bottom:.3rem;display:block}
+.fi{width:100%;border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:.52rem .85rem;font-size:.85rem;font-family:var(--font-body);color:var(--text-dark);background:white;outline:none;transition:border-color .2s}
+.fi:focus{border-color:var(--plum)}
+.filter-toggle{display:inline-flex;align-items:center;gap:.4rem;font-size:.78rem;font-weight:600;color:var(--text-mid);cursor:pointer;padding:.35rem .8rem;border:1.5px solid var(--border);border-radius:100px;transition:all .2s;user-select:none;white-space:nowrap}
+.filter-toggle:has(input:checked){background:var(--plum);color:white;border-color:var(--plum)}
+.filter-toggle input{accent-color:var(--plum);width:13px;height:13px;cursor:pointer}
+.btn-search{background:linear-gradient(135deg,var(--rose),var(--plum));color:white;border:none;border-radius:var(--radius-sm);padding:.58rem 1.4rem;font-size:.875rem;font-weight:700;cursor:pointer;white-space:nowrap;font-family:var(--font-body);height:40px}
+.btn-clear{font-size:.75rem;color:var(--text-light);text-decoration:none;padding:.35rem .8rem;border-radius:100px;border:1.5px solid var(--border);margin-left:auto;white-space:nowrap;transition:all .2s}
+.btn-clear:hover{color:var(--rose);border-color:var(--rose)}
+
+/* Results bar */
+.results-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.2rem}
+.results-count{font-size:.875rem;color:var(--text-light)}
+.results-count strong{color:var(--text-dark);font-size:1rem}
+
+/* 3-column grid */
+.classes-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1.4rem}
+@media(max-width:1100px){.classes-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:680px){.classes-grid{grid-template-columns:1fr}}
+
+/* Card */
+.class-card{background:white;border-radius:16px;border:1px solid var(--border);overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.07);transition:transform .25s,box-shadow .25s,border-color .25s;display:flex;flex-direction:column;text-decoration:none;color:inherit}
+.class-card:hover{transform:translateY(-5px);box-shadow:0 14px 36px rgba(0,0,0,.13);border-color:rgba(201,111,126,.4)}
+
+/* Image */
+.class-img{height:210px;position:relative;overflow:hidden;flex-shrink:0}
+.class-img-bg{position:absolute;inset:0}
+.class-img-bg.fb-yoga{background:linear-gradient(135deg,#e8d0d8,#c4a0b8)}
+.class-img-bg.fb-meditation{background:linear-gradient(135deg,#d0d8f0,#9098cc)}
+.class-img-bg.fb-pilates{background:linear-gradient(135deg,#d0e8d8,#90b8a0)}
+.class-img-bg.fb-strength{background:linear-gradient(135deg,#e8d8f0,#b090cc)}
+.class-img-bg.fb-hiit{background:linear-gradient(135deg,#f8d8c8,#d09070)}
+.class-img-bg.fb-walking_group{background:linear-gradient(135deg,#d0f0e0,#80c898)}
+.class-img-bg.fb-mental_wellbeing{background:linear-gradient(135deg,#f0d8f0,#c898cc)}
+.class-img-bg.fb-dance{background:linear-gradient(135deg,#f8d0d8,#e09098)}
+.class-img-bg.fb-nutrition{background:linear-gradient(135deg,#d8f0d0,#98cc88)}
+.class-img-bg.fb-boxing{background:linear-gradient(135deg,#f0e8c8,#c8a060)}
+.class-img-bg.fb-swimming{background:linear-gradient(135deg,#c8e8f8,#60a8d0)}
+.class-img-bg.fb-cycling{background:linear-gradient(135deg,#e8f0d0,#a0b870)}
+.class-img-bg.fb-barre{background:linear-gradient(135deg,#f8d8e8,#d890b8)}
+.class-img-bg.fb-zumba{background:linear-gradient(135deg,#f8e8c8,#e0a860)}
+.class-img-bg.fb-martial_arts{background:linear-gradient(135deg,#e0d8f0,#9080c0)}
+.class-img-bg.fb-stretching{background:linear-gradient(135deg,#d8f8f0,#70c8b8)}
+.class-img-bg.fb-other{background:linear-gradient(135deg,#e8d8f8,#b0a0d0)}
+.class-img img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center;transition:transform .5s}
+.class-card:hover .class-img img{transform:scale(1.06)}
+.img-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,transparent 40%,rgba(0,0,0,.45))}
+.img-badges{position:absolute;top:.7rem;left:.7rem;display:flex;gap:.3rem;flex-wrap:wrap;z-index:2}
+.badge{font-size:.58rem;font-weight:800;padding:.18rem .55rem;border-radius:100px;text-transform:uppercase;letter-spacing:.04em;backdrop-filter:blur(4px)}
+.b-women{background:rgba(201,111,126,.9);color:white}
+.b-free{background:rgba(82,155,120,.9);color:white}
+.b-verified{background:rgba(50,160,100,.9);color:white}
+.b-online{background:rgba(80,110,200,.9);color:white}
+.img-spots{position:absolute;top:.7rem;right:.7rem;font-size:.63rem;font-weight:800;padding:.2rem .55rem;border-radius:100px;z-index:2;backdrop-filter:blur(4px)}
+.spots-ok{background:rgba(0,0,0,.5);color:white}
+.spots-low{background:rgba(220,50,50,.88);color:white}
+.spots-full{background:rgba(130,130,130,.85);color:white}
+.img-next{position:absolute;bottom:.6rem;left:.7rem;right:.7rem;color:white;font-size:.7rem;font-weight:700;z-index:2;display:flex;align-items:center;gap:.3rem;text-shadow:0 1px 4px rgba(0,0,0,.6)}
+
+/* Card body */
+.class-body{padding:1.1rem 1.2rem;flex:1;display:flex;flex-direction:column}
+.c-type{font-size:.6rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--rose);margin-bottom:.3rem}
+.c-title{font-family:var(--font-display);font-size:1.05rem;font-weight:700;color:var(--text-dark);margin-bottom:.25rem;line-height:1.3}
+.c-provider{font-size:.78rem;color:var(--text-light);margin-bottom:.7rem;display:flex;align-items:center;gap:.3rem}
+.c-info{display:flex;flex-direction:column;gap:.28rem;font-size:.78rem;color:var(--text-mid);flex:1;margin-bottom:.85rem}
+.c-info i{color:var(--rose);width:14px;text-align:center;flex-shrink:0;font-size:.72rem}
+.c-info a{color:var(--plum);font-weight:600;text-decoration:none}
+.c-info a:hover{text-decoration:underline}
+.c-info .c-desc{font-size:.76rem;color:var(--text-light);line-height:1.5;margin-top:.1rem}
+
+/* Map button */
+.map-toggle{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;font-weight:700;color:var(--plum);background:rgba(122,85,160,.07);border:1.5px solid rgba(122,85,160,.2);border-radius:100px;padding:.3rem .8rem;cursor:pointer;transition:all .2s;text-decoration:none;margin-bottom:.75rem;width:fit-content}
+.map-toggle:hover{background:rgba(122,85,160,.15);border-color:var(--plum)}
+.map-embed{width:100%;height:180px;border-radius:10px;border:1px solid var(--border);overflow:hidden;margin-bottom:.75rem;display:none}
+.map-embed.open{display:block}
+.map-embed iframe{width:100%;height:100%;border:none;display:block}
+
+/* Footer */
+.c-footer{display:flex;align-items:center;justify-content:space-between;padding-top:.75rem;border-top:1px solid var(--border)}
+.c-price{font-weight:800;font-size:1.05rem;color:var(--plum)}
+.c-price.free{color:#2d9a60}
+.c-btn{background:linear-gradient(135deg,var(--rose),var(--plum));color:white;border:none;border-radius:100px;padding:.4rem 1rem;font-size:.75rem;font-weight:700;cursor:pointer;font-family:var(--font-body);text-decoration:none;white-space:nowrap}
+
+/* No results */
+.no-results{text-align:center;padding:4rem 2rem;background:white;border-radius:16px;border:1px solid var(--border)}
+
+/* Pagination */
+.pagination{display:flex;gap:.4rem;justify-content:center;margin-top:2rem;flex-wrap:wrap}
+.pg-btn{padding:.45rem .9rem;border-radius:var(--radius-sm);border:1.5px solid var(--border);background:white;color:var(--text-mid);font-size:.8rem;font-weight:600;text-decoration:none;transition:all .2s}
+.pg-btn.active,.pg-btn:hover{background:var(--plum);color:white;border-color:var(--plum)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="explore-page">
+  <div class="explore-hd">
+    <h1>Explore <em>Classes</em></h1>
+    <p>Find women-only fitness and wellbeing sessions across Redditch, Bromsgrove, Worcester &amp; Birmingham.</p>
+  </div>
+
+  <!-- Filter Panel -->
+  <form method="GET" action="{{ url_for('main.explore') }}" class="filter-panel">
+    <div class="filter-top">
+      <div>
+        <label class="filter-label">🔍 Search</label>
+        <input name="query" value="{{ request.args.get('query','') }}" class="fi" placeholder="Class name or keyword…">
+      </div>
+      <div>
+        <label class="filter-label">🏃 Activity Type</label>
+        <select name="activity_type" class="fi">
+          <option value="">All Activities</option>
+          {% for v,l in [('yoga','🧘 Yoga'),('pilates','🤸 Pilates'),('strength','💪 Strength'),('hiit','🔥 HIIT'),('meditation','☯️ Meditation'),('mental_wellbeing','🧠 Mental Wellbeing'),('walking_group','🚶 Walking Group'),('dance','💃 Dance'),('nutrition','🥗 Nutrition'),('boxing','🥊 Boxing'),('swimming','🏊 Swimming'),('cycling','🚴 Cycling'),('barre','🩰 Barre'),('zumba','🎵 Zumba'),('martial_arts','🥋 Self-Defence'),('stretching','🙆 Stretching')] %}
+          <option value="{{ v }}" {{ 'selected' if request.args.get('activity_type')==v }}>{{ l }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="filter-label">📍 Location</label>
+        <select name="city" class="fi">
+          <option value="">All Locations</option>
+          {% for c in ['Redditch','Bromsgrove','Worcester','Birmingham','Online'] %}
+          <option value="{{ c }}" {{ 'selected' if request.args.get('city')==c }}>{{ c }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label class="filter-label">📊 Difficulty</label>
+        <select name="difficulty" class="fi">
+          <option value="">All Levels</option>
+          {% for v,l in [('beginner','🌱 Beginner'),('all_levels','🌟 All Levels'),('intermediate','⚡ Intermediate'),('advanced','🏆 Advanced')] %}
+          <option value="{{ v }}" {{ 'selected' if request.args.get('difficulty')==v }}>{{ l }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div><label class="filter-label">&nbsp;</label>
+        <button type="submit" class="btn-search"><i class="fas fa-search"></i> Search</button>
+      </div>
+    </div>
+    <div class="filter-bottom">
+      <label class="filter-toggle"><input type="checkbox" name="women_only" value="1" {{ 'checked' if request.args.get('women_only') }}>♀ Women-Only</label>
+      <label class="filter-toggle"><input type="checkbox" name="is_free" value="1" {{ 'checked' if request.args.get('is_free') }}>💚 Free</label>
+      <label class="filter-toggle"><input type="checkbox" name="is_online" value="1" {{ 'checked' if request.args.get('is_online') }}>💻 Online</label>
+      <label class="filter-toggle"><input type="checkbox" name="accessible" value="1" {{ 'checked' if request.args.get('accessible') }}>♿ Accessible</label>
+      <select name="language" class="fi" style="width:auto;padding:.3rem .7rem;font-size:.76rem;height:36px">
+        <option value="">🌐 All Languages</option>
+        {% for v in ['English','Urdu','Arabic','Polish','Punjabi'] %}
+        <option value="{{ v }}" {{ 'selected' if request.args.get('language')==v }}>{{ v }}</option>
+        {% endfor %}
+      </select>
+      <select name="min_rating" class="fi" style="width:auto;padding:.3rem .7rem;font-size:.76rem;height:36px">
+        <option value="">⭐ Any Rating</option>
+        <option value="4" {{ 'selected' if request.args.get('min_rating')=='4' }}>4+ Stars</option>
+        <option value="4.5" {{ 'selected' if request.args.get('min_rating')=='4.5' }}>4.5+ Stars</option>
+        <option value="5" {{ 'selected' if request.args.get('min_rating')=='5' }}>5 Stars</option>
+      </select>
+      <a href="{{ url_for('main.explore') }}" class="btn-clear">✕ Clear Filters</a>
+    </div>
+  </form>
+
+  <div class="results-bar">
+    <span class="results-count"><strong>{{ classes.total }}</strong> class{{ 'es' if classes.total != 1 else '' }} found</span>
+  </div>
+
+  {% if classes.items %}
+  <div class="classes-grid">
+    {% for cls in classes.items %}
+    {% set spots = [cls.max_capacity - (cls.current_bookings or 0), 0]|max %}
+    {% set next_sched = cls.schedules.filter_by(is_cancelled=False).order_by('date','start_time').first() %}
+    {% set atype = cls.activity_type %}
+    {% set icons = {'yoga':'🧘','pilates':'🤸','strength':'💪','hiit':'🔥','meditation':'☯️','mental_wellbeing':'🧠','walking_group':'🚶','dance':'💃','nutrition':'🥗','boxing':'🥊','swimming':'🏊','cycling':'🚴','barre':'🩰','zumba':'🎵','martial_arts':'🥋','stretching':'🙆','other':'🌸'} %}
+    {% set icon = icons.get(atype,'🌸') %}
+    {% set map_q = (cls.location or (cls.city + ' ' + (cls.postcode or '')))|urlencode %}
+
+    <div class="class-card">
+      <!-- Image -->
+      <div class="class-img">
+        <div class="class-img-bg fb-{{ atype if atype in ['yoga','meditation','pilates','strength','hiit','walking_group','mental_wellbeing','dance','nutrition','boxing','swimming','cycling','barre','zumba','martial_arts','stretching'] else 'other' }}"></div>
+        {% if cls.cover_image_url %}
+          <img src="{{ cls.cover_image_url }}" alt="{{ cls.title }}" loading="lazy"
+               onerror="this.style.display='none'">
+        {% endif %}
+        <div class="img-overlay"></div>
+        <div class="img-badges">
+          {% if cls.is_women_only %}<span class="badge b-women">♀ Women Only</span>{% endif %}
+          {% if cls.is_free %}<span class="badge b-free">Free</span>{% endif %}
+          {% if cls.provider.verified_badge %}<span class="badge b-verified">✓ Verified</span>{% endif %}
+          {% if cls.is_online %}<span class="badge b-online">Online</span>{% endif %}
+        </div>
+        {% if spots <= 0 %}
+          <div class="img-spots spots-full">Fully Booked</div>
+        {% elif spots <= 3 %}
+          <div class="img-spots spots-low">🔥 {{ spots }} left!</div>
+        {% else %}
+          <div class="img-spots spots-ok">{{ spots }} spots</div>
+        {% endif %}
+        {% if next_sched %}
+        <div class="img-next">
+          <i class="fas fa-calendar-day"></i>
+          {{ next_sched.date.strftime('%a %d %b') }} · {{ next_sched.start_time.strftime('%H:%M') }}–{{ next_sched.end_time.strftime('%H:%M') }}
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Body -->
+      <div class="class-body">
+        <div class="c-type">{{ icon }} {{ atype.replace('_',' ').title() }}</div>
+        <div class="c-title">{{ cls.title }}</div>
+        <div class="c-provider"><i class="fas fa-store" style="color:var(--rose)"></i> {{ cls.provider.business_name }}</div>
+
+        <div class="c-info">
+          <!-- Description -->
+          <div class="c-desc">{{ cls.description[:120] }}{% if cls.description|length > 120 %}…{% endif %}</div>
+
+          <!-- Full address -->
+          {% set addr = cls.location or cls.provider.address %}
+          {% if addr %}
+          <span><i class="fas fa-map-marker-alt"></i> {{ addr }}</span>
+          {% endif %}
+
+          <!-- Phone -->
+          {% if cls.provider.phone %}
+          <span><i class="fas fa-phone"></i>
+            <a href="tel:{{ cls.provider.phone }}" onclick="event.stopPropagation()">{{ cls.provider.phone }}</a>
+          </span>
+          {% endif %}
+
+          <!-- Email -->
+          {% if cls.provider.contact_email %}
+          <span><i class="fas fa-envelope"></i>
+            <a href="mailto:{{ cls.provider.contact_email }}" onclick="event.stopPropagation()">{{ cls.provider.contact_email }}</a>
+          </span>
+          {% endif %}
+
+          <!-- Duration, level, language -->
+          <span><i class="fas fa-clock"></i> {{ cls.duration_minutes }} min
+            &nbsp;·&nbsp; <i class="fas fa-signal"></i> {{ cls.difficulty_level.replace('_',' ').title() }}
+            {% if cls.language and cls.language != 'English' %}
+            &nbsp;·&nbsp; <i class="fas fa-language"></i> {{ cls.language }}
+            {% endif %}
+          </span>
+
+          <!-- Accessibility -->
+          {% if cls.accessibility_info %}
+          <span><i class="fas fa-wheelchair"></i> {{ cls.accessibility_info }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Map toggle -->
+        {% if cls.latitude and cls.longitude %}
+        <button class="map-toggle" onclick="toggleMap(this, {{ cls.latitude }}, {{ cls.longitude }}, '{{ cls.title|replace("'","\\'") }}')" type="button">
+          <i class="fas fa-map-marked-alt"></i> View on Map
+        </button>
+        <div class="map-embed" id="map-{{ cls.id }}"></div>
+        {% elif addr %}
+        <a class="map-toggle" href="https://www.openstreetmap.org/search?query={{ map_q }}" target="_blank" onclick="event.stopPropagation()">
+          <i class="fas fa-map-marked-alt"></i> View on Map
+        </a>
+        {% endif %}
+
+        <!-- Footer -->
+        <div class="c-footer">
+          <span class="c-price {{ 'free' if cls.is_free }}">
+            {{ 'Free' if cls.is_free else '£%.2f'|format(cls.price) }}
+          </span>
+          <a href="{{ url_for('main.class_detail', class_id=cls.id) }}" class="c-btn">View &amp; Book →</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if classes.pages > 1 %}
+  <div class="pagination">
+    {% if classes.has_prev %}
+      <a href="{{ url_for('main.explore', page=classes.prev_num, **request.args) }}" class="pg-btn">← Prev</a>
+    {% endif %}
+    {% for p in classes.iter_pages(left_edge=1,right_edge=1,left_current=2,right_current=2) %}
+      {% if p %}
+        <a href="{{ url_for('main.explore', page=p, **request.args) }}" class="pg-btn {{ 'active' if p==classes.page }}">{{ p }}</a>
+      {% else %}
+        <span class="pg-btn" style="pointer-events:none;opacity:.4">…</span>
+      {% endif %}
+    {% endfor %}
+    {% if classes.has_next %}
+      <a href="{{ url_for('main.explore', page=classes.next_num, **request.args) }}" class="pg-btn">Next →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  {% else %}
+  <div class="no-results">
+    <div style="font-size:3rem;margin-bottom:1rem">🔍</div>
+    <h3 style="margin-bottom:.5rem;font-family:var(--font-display)">No classes found</h3>
+    <p style="color:var(--text-light);margin-bottom:1.5rem">Try adjusting your filters — for example, remove the location or activity type filter.</p>
+    <a href="{{ url_for('main.explore') }}" class="btn-search" style="display:inline-block;text-decoration:none">Clear All Filters</a>
+  </div>
+  {% endif %}
+</div>
+
+<script>
+function toggleMap(btn, lat, lng, title) {
+  const mapDiv = btn.nextElementSibling;
+  if (mapDiv.classList.contains('open')) {
+    mapDiv.classList.remove('open');
+    btn.innerHTML = '<i class="fas fa-map-marked-alt"></i> View on Map';
+    return;
+  }
+  mapDiv.classList.add('open');
+  btn.innerHTML = '<i class="fas fa-times"></i> Hide Map';
+  if (!mapDiv.querySelector('iframe')) {
+    const zoom = 16;
+    const bbox_offset = 0.008;
+    const bbox = `${lng-bbox_offset},${lat-bbox_offset},${lng+bbox_offset},${lat+bbox_offset}`;
+    const url = `https://www.openstreetmap.org/export/embed.html?bbox=${bbox}&layer=mapnik&marker=${lat},${lng}`;
+    mapDiv.innerHTML = `
+      <iframe src="${url}" loading="lazy" title="${title} map"></iframe>
+      <a href="https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}#map=16/${lat}/${lng}"
+         target="_blank"
+         style="display:block;text-align:center;font-size:.7rem;color:var(--plum);padding:.3rem;background:#f8f4f9;font-weight:600">
+        <i class="fas fa-external-link-alt"></i> Open full map in new tab
+      </a>`;
+  }
+}
+</script>
+{% endblock %}

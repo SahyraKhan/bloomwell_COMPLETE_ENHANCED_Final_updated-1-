@@ -1,0 +1,252 @@
+{% extends "base.html" %}
+{% block content %}
+
+<div class="dashboard-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+        <div class="sidebar-card">
+            <div class="sidebar-header">
+                <div class="sidebar-avatar">
+                    {% if current_user.profile_image and current_user.profile_image != 'default_avatar.png' %}
+                        <img src="{{ url_for('static', filename='images/' + current_user.profile_image) }}" alt="avatar">
+                    {% else %}
+                        {{ current_user.full_name[0] if current_user.full_name else current_user.username[0] }}
+                    {% endif %}
+                </div>
+                <div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div>
+                <div class="sidebar-role">💜 Member</div>
+                {% if profile %}
+                <div style="margin-top: 0.5rem; font-size: 0.8rem; color: var(--text-light);">
+                    {{ profile.total_sessions_attended }} sessions attended
+                </div>
+                {% endif %}
+            </div>
+            <nav class="sidebar-nav">
+                <a href="{{ url_for('member.dashboard') }}" class="sidebar-link active">
+                    <i class="fas fa-home"></i> My Dashboard
+                </a>
+                <a href="{{ url_for('main.explore') }}" class="sidebar-link">
+                    <i class="fas fa-search"></i> Explore Classes
+                </a>
+                <a href="{{ url_for('member.my_bookings') }}" class="sidebar-link">
+                    <i class="fas fa-calendar-check"></i> My Bookings
+                </a>
+                <a href="{{ url_for('main.calendar') }}" class="sidebar-link">
+                    <i class="fas fa-calendar"></i> Booking Calendar
+                </a>
+                <a href="{{ url_for('main.community') }}" class="sidebar-link">
+                    <i class="fas fa-comments"></i> Community
+                </a>
+                <div class="sidebar-divider"></div>
+                <a href="{{ url_for('member.edit_profile') }}" class="sidebar-link">
+                    <i class="fas fa-user-edit"></i> Edit Profile
+                </a>
+                <a href="{{ url_for('member.preferences') }}" class="sidebar-link">
+                    <i class="fas fa-sliders-h"></i> My Preferences
+                </a>
+                <a href="{{ url_for('member.notifications') }}" class="sidebar-link">
+                    <i class="fas fa-bell"></i> Notifications
+                    {% if notifications %}<span style="background: var(--rose); color: white; font-size: 0.7rem; padding: 0.1rem 0.4rem; border-radius: 100px; margin-left: auto;">{{ notifications|length }}</span>{% endif %}
+                </a>
+                <div class="sidebar-divider"></div>
+                <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color: var(--rose);">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </a>
+            </nav>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="dashboard-content">
+        <div class="dashboard-welcome">
+            <h1>Good to see you, <em>{{ current_user.full_name.split()[0] if current_user.full_name else current_user.username }}</em>! 🌸</h1>
+            <p>Your wellness journey at a glance.</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-number">{{ profile.total_sessions_attended if profile else 0 }}</div>
+                <div class="stat-label">Sessions Attended</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">✅</div>
+                <div class="stat-number">{{ current_user.bookings.filter_by(status='confirmed').count() }}</div>
+                <div class="stat-label">Active Bookings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⭐</div>
+                <div class="stat-number">{{ current_user.reviews.count() }}</div>
+                <div class="stat-label">Reviews Written</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">💬</div>
+                <div class="stat-number">{{ current_user.discussions.count() + current_user.discussion_replies.count() }}</div>
+                <div class="stat-label">Community Posts</div>
+            </div>
+        </div>
+
+        <!-- Notifications -->
+        {% if notifications %}
+        <div class="section-card mb-3">
+            <div class="section-card-header">
+                <h3><i class="fas fa-bell text-rose"></i> New Notifications</h3>
+            </div>
+            <div class="section-card-body">
+                {% for notif in notifications %}
+                <div class="notif-item">
+                    <i class="fas fa-circle" style="color: var(--rose); font-size: 0.5rem;"></i>
+                    <div>
+                        <p style="font-weight: 600; font-size: 0.9rem;">{{ notif.title }}</p>
+                        <p style="font-size: 0.85rem; color: var(--text-light);">{{ notif.message }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+                <a href="{{ url_for('member.notifications') }}" class="btn btn-ghost btn-sm mt-2">View All</a>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Bookings -->
+        <div class="section-card">
+            <div class="section-card-header">
+                <h3><i class="fas fa-calendar-check text-sage"></i> Recent Bookings</h3>
+                <a href="{{ url_for('member.my_bookings') }}" class="btn btn-ghost btn-sm">View All</a>
+            </div>
+            {% if bookings %}
+            <div class="table-wrapper">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Class</th>
+                            <th>Provider</th>
+                            <th>Code</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for booking in bookings %}
+                        <tr>
+                            <td><strong>{{ booking.fitness_class.title }}</strong></td>
+                            <td>{{ booking.fitness_class.provider.business_name }}</td>
+                            <td><code style="background: var(--cream); padding: 0.15rem 0.4rem; border-radius: 4px; font-size: 0.8rem;">{{ booking.confirmation_code }}</code></td>
+                            <td style="color: var(--text-light); font-size: 0.85rem;">{{ booking.booking_date.strftime('%d %b %Y') }}</td>
+                            <td><span class="status-badge status-{{ booking.status }}">{{ booking.status.replace('_', ' ').title() }}</span></td>
+                            <td>
+                                {% if booking.status == 'confirmed' %}
+                                <form method="POST" action="{{ url_for('member.cancel_booking', booking_id=booking.id) }}" onsubmit="return confirmAction('Cancel this booking?')">
+                                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                    <button class="btn btn-danger btn-sm" type="submit">Cancel</button>
+                                </form>
+                                {% elif booking.status == 'attended' %}
+                                <a href="{{ url_for('member.leave_review', class_id=booking.class_id) }}" class="btn btn-sage btn-sm">Review</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">📅</div>
+                <h3>No bookings yet</h3>
+                <p>Discover and book your first class!</p>
+                <a href="{{ url_for('main.explore') }}" class="btn btn-primary">Explore Classes</a>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions mt-3">
+            <h3 class="mb-2">Quick Actions</h3>
+            <div class="quick-action-grid">
+                <a href="{{ url_for('main.explore') }}" class="quick-action-card">
+                    <i class="fas fa-search"></i>
+                    <span>Find a Class</span>
+                </a>
+                <a href="{{ url_for('member.new_discussion') }}" class="quick-action-card">
+                    <i class="fas fa-pen"></i>
+                    <span>Start Discussion</span>
+                </a>
+                <a href="{{ url_for('member.edit_profile') }}" class="quick-action-card">
+                    <i class="fas fa-user-edit"></i>
+                    <span>Edit Profile</span>
+                </a>
+                <a href="{{ url_for('member.preferences') }}" class="quick-action-card">
+                    <i class="fas fa-sliders-h"></i>
+                    <span>Preferences</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_css %}
+<style>
+.dashboard-welcome { margin-bottom: 2rem; }
+.dashboard-welcome h1 { font-size: 1.75rem; color: var(--text-dark); }
+.dashboard-welcome h1 em { font-style: italic; color: var(--rose); }
+.dashboard-welcome p { color: var(--text-light); }
+
+.section-card {
+    background: white;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.section-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.section-card-header h3 { font-size: 1rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem; }
+.section-card-body { padding: 1.5rem; }
+
+.notif-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border);
+}
+
+.notif-item:last-child { border-bottom: none; }
+
+.quick-action-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+
+.quick-action-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1.25rem;
+    background: white;
+    border-radius: var(--radius);
+    border: 1.5px solid var(--border);
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--text-mid);
+    text-align: center;
+    transition: all 0.25s ease;
+}
+
+.quick-action-card i { font-size: 1.5rem; color: var(--rose); }
+.quick-action-card:hover { border-color: var(--rose); background: var(--rose-pale); color: var(--plum); transform: translateY(-3px); }
+
+@media (max-width: 768px) {
+    .quick-action-grid { grid-template-columns: repeat(2, 1fr); }
+}
+</style>
+{% endblock %}

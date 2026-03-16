@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div style="max-width:600px;margin:2.5rem auto;padding:0 1.5rem 3rem">
+    <h1 style="font-family:var(--font-display);font-size:1.75rem;margin-bottom:1.5rem">Reschedule Booking</h1>
+    <div style="background:white;border-radius:var(--radius-lg);border:1px solid var(--border);padding:1.75rem;box-shadow:var(--shadow-sm)">
+        <h3 style="font-size:1rem;margin-bottom:1.2rem">{{ booking.fitness_class.title }}</h3>
+        <form method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            {% for s in schedules %}
+            <label style="display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border:1.5px solid var(--border);border-radius:var(--radius-sm);margin-bottom:.5rem;cursor:pointer;font-size:.875rem">
+                <input type="radio" name="schedule_id" value="{{ s.id }}" {% if s.id == booking.schedule_id %}checked{% endif %} style="accent-color:var(--plum)">
+                {{ s.date.strftime('%A %d %B %Y') }} · {{ s.start_time.strftime('%H:%M') }} – {{ s.end_time.strftime('%H:%M') }}
+            </label>
+            {% endfor %}
+            <button type="submit" style="width:100%;margin-top:1rem;background:linear-gradient(135deg,var(--rose),var(--plum));color:white;border:none;border-radius:100px;padding:.7rem;font-size:.9rem;font-weight:700;cursor:pointer;font-family:var(--font-body)">Confirm Reschedule</button>
+        </form>
+        <a href="{{ url_for('member.my_bookings') }}" style="display:block;text-align:center;margin-top:.85rem;font-size:.85rem;color:var(--text-light)">← Back to Bookings</a>
+    </div>
+</div>
+{% endblock %}

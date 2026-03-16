@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="dashboard-layout">
+  <aside class="sidebar"><div class="sidebar-card">
+    <div class="sidebar-header"><div class="sidebar-avatar">{{ current_user.full_name[0] if current_user.full_name else 'M' }}</div><div class="sidebar-name">{{ current_user.full_name or current_user.username }}</div><div class="sidebar-role">💜 Member</div></div>
+    <nav class="sidebar-nav">
+      <a href="{{ url_for('member.dashboard') }}" class="sidebar-link"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="{{ url_for('member.my_bookings') }}" class="sidebar-link"><i class="fas fa-calendar-check"></i> My Bookings</a>
+      <a href="{{ url_for('member.edit_profile') }}" class="sidebar-link"><i class="fas fa-user-edit"></i> Edit Profile</a>
+      <a href="{{ url_for('member.preferences') }}" class="sidebar-link active"><i class="fas fa-sliders-h"></i> Preferences</a>
+      <div class="sidebar-divider"></div>
+      <a href="{{ url_for('auth.logout') }}" class="sidebar-link" style="color:var(--rose);"><i class="fas fa-sign-out-alt"></i> Sign Out</a>
+    </nav>
+  </div></aside>
+  <div class="dashboard-content">
+    <div style="margin-bottom:2rem;"><h1 style="font-size:1.75rem;font-family:var(--font-display);">My <em style="color:var(--rose);">Preferences</em></h1><p style="color:var(--text-light);">Help us personalise your experience.</p></div>
+    <div class="card"><div class="card-body" style="padding:2rem;">
+      <form method="POST">
+        {{ form.hidden_tag() }}
+        <div class="form-group"><label class="form-label">Preferred Activities <span style="color:var(--text-light);font-weight:400;">(e.g. yoga, pilates)</span></label>{{ form.preferred_activities(class="form-control", placeholder="yoga, meditation, strength") }}{% for e in form.preferred_activities.errors %}<li class="form-errors">{{ e }}</li>{% endfor %}</div>
+        <div class="form-group"><label class="form-label">Fitness Goals</label>{{ form.fitness_goals(class="form-control", placeholder="What do you want to achieve?") }}</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="form-group"><label class="form-label">Age Group</label>{{ form.age_group(class="form-control") }}</div>
+          <div class="form-group"><label class="form-label">Preferred Language</label>{{ form.language_preference(class="form-control") }}</div>
+        </div>
+        <div class="form-group"><label class="form-label">Cultural / Accessibility Needs</label>{{ form.cultural_preferences(class="form-control", placeholder="Anything we should know?") }}</div>
+        <div style="display:flex;gap:1rem;margin-top:1.5rem;">{{ form.submit(class="btn btn-primary") }}<a href="{{ url_for('member.dashboard') }}" class="btn btn-outline">Cancel</a></div>
+      </form>
+    </div></div>
+  </div>
+</div>
+{% endblock %}
