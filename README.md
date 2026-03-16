@@ -30,7 +30,7 @@ BloomWell is a full-stack web application developed as part of a BSc (Hons) Appl
 | Layer | Technology |
 |-------|-----------|
 | Backend | Python, Flask |
-| Database | SQLite, Flask-SQLAlchemy |
+| Database | SQLite, Flask |
 | Frontend | HTML, CSS, JavaScript, Jinja2 |
 | Authentication | Flask-Login, Flask-WTF |
 | Architecture | Three-Tier MVC (Presentation, Application, Data) |
@@ -113,7 +113,7 @@ bloomwell_enhanced/
 - **Degree:** BSc (Hons) Applied Computing
 - **Institution:** UWTSD Birmingham (IICL)
 - **Supervisor:** MD Shantanu Islam
-- **Year:** 2025
+- **Year:** 2026
 
 ---
 
